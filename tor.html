@@ -1,0 +1,1246 @@
+<title>โครง TOR RTB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F6F5; --surface:#FFFFFF; --surface-2:#EEF3F1; --line:#C9D4D0; --line-soft:#DDE5E1;
+  --ink:#16221F; --ink-2:#3E514B; --ink-3:#7A8B86;
+  --brand:#1E8E7A; --brand-wash:#DDF2EC; --brand-deep:#0E5F52;
+  --vacant:#B03A30; --vacant-wash:#FBEAE8;
+  --sal-over:#B03A30; --sal-under:#1E7F5A; --warn:#B8741A;
+  --mgrbox:#3E5F9E; --codebox:#8A6E5F;
+  --tone-teal:#2F6B5B; --tone-blue:#2C4E78; --tone-pink:#C8809E; --tone-brown:#7A5A4A;
+  --tone-yellow:#E5B83A; --tone-yellow-ink:#3A2E05; --tone-orange:#E08A2F; --tone-orange-ink:#3B2305;
+  --tone-night:#3B5BB0; --tone-purple:#6E56B8;
+  --r-mgr:#3E5F9E; --r-am:#9B7FE0; --r-spec:#5A8DE0; --r-sre:#5A8DE0; --r-eng:#D98FB0;
+  --r-srt:#E0904A; --r-tech:#3FB8A8; --r-off:#6AA8D8; --r-safe:#D9534F; --r-other:#8C9A96;
+  --shadow:0 1px 2px rgba(0,0,0,.06),0 2px 8px rgba(0,0,0,.05);
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --bg:#0E1716; --surface:#16221F; --surface-2:#1B2926; --line:#2F403C; --line-soft:#26352F;
+  --ink:#E6EEEB; --ink-2:#B9C7C2; --ink-3:#7F918B;
+  --brand:#4FC1A8; --brand-wash:#173B33; --brand-deep:#8FE0CC;
+  --vacant:#E06A5E; --vacant-wash:#3A1F1C; --sal-over:#F08A7E; --sal-under:#5FD3A6; --warn:#E5B04A;
+  --mgrbox:#4A6FB4; --codebox:#7A5F52;
+  --tone-teal:#2F5D4F; --tone-blue:#2A4A70; --tone-pink:#9E5F7B; --tone-brown:#6E5245;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 2px 8px rgba(0,0,0,.25);
+}}
+:root[data-theme="dark"]{
+  --bg:#0E1716; --surface:#16221F; --surface-2:#1B2926; --line:#2F403C; --line-soft:#26352F;
+  --ink:#E6EEEB; --ink-2:#B9C7C2; --ink-3:#7F918B;
+  --brand:#4FC1A8; --brand-wash:#173B33; --brand-deep:#8FE0CC;
+  --vacant:#E06A5E; --vacant-wash:#3A1F1C; --sal-over:#F08A7E; --sal-under:#5FD3A6; --warn:#E5B04A;
+  --mgrbox:#4A6FB4; --codebox:#7A5F52;
+  --tone-teal:#2F5D4F; --tone-blue:#2A4A70; --tone-pink:#9E5F7B; --tone-brown:#6E5245;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 2px 8px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+.gate{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;z-index:500}
+.gate-box{width:min(420px,100%);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:26px 26px 22px;box-shadow:0 20px 60px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:8px}
+.gate-box p{font-size:12.5px;color:var(--ink-2);line-height:1.5;margin-bottom:6px}
+.gate-box label{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.gate-box input{font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);color:var(--ink);letter-spacing:.08em}
+.gate-box input:focus{outline:2px solid var(--brand);border-color:var(--brand)}
+.gate-err{min-height:16px;font-size:12px;color:var(--vacant);font-weight:600}
+.gate-btn{font:inherit;font-weight:600;font-size:14px;padding:10px;border:0;border-radius:8px;background:var(--brand);color:#fff;cursor:pointer}
+.gate-btn:hover{filter:brightness(1.08)} .busy .gate-btn{opacity:.6;pointer-events:none}
+.gate-box small{font-size:10.5px;color:var(--ink-3);line-height:1.45;margin-top:8px}
+.rolebadge{font-size:10.5px;font-weight:600;color:var(--brand-deep);background:var(--brand-wash);border-radius:999px;padding:3px 9px;align-self:center}
+body.role-view .rolebadge{color:var(--warn);background:color-mix(in srgb,var(--warn) 15%,transparent)}
+body{font-family:"IBM Plex Sans Thai",system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:13px;line-height:1.4;padding:18px clamp(16px,2vw,28px) 40px}
+h1,h2,h3,.col-name,.mgrcard .p-name,.ov-name{font-family:"Bai Jamjuree",sans-serif}
+.mono{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+
+/* header */
+.top{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between;margin-bottom:14px}
+.eyebrow{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--brand);font-weight:600}
+h1{font-size:22px;font-weight:700;line-height:1.15;margin-top:4px;text-wrap:balance}
+.sub{color:var(--ink-3);font-size:12px;margin-top:4px}
+.kpis{display:flex;gap:10px;flex-wrap:wrap}
+.kpi{background:var(--surface);border:1px solid var(--line-soft);border-radius:8px;padding:8px 14px;min-width:96px;box-shadow:var(--shadow)}
+.kpi .l{font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.kpi .v{font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:700;line-height:1.1;margin-top:2px}
+.kpi .s{font-size:10px;color:var(--ink-3);margin-top:1px;font-family:"IBM Plex Mono",monospace}
+.kpi.vac .v{color:var(--vacant)} .kpi.act .v{color:var(--brand)} .kpi.hc .v{color:var(--brand-deep)}
+.notice{margin:0 0 14px;padding:9px 12px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);border-radius:8px;font-size:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.notice b{font-weight:600;color:var(--ink)}
+.alert{margin:0 0 14px;padding:10px 12px;border:2px solid var(--vacant);background:var(--vacant);color:#fff;border-radius:8px;font-weight:600}
+.slot{display:none}
+.card.vacant .slot,.mgrcard.vacant .slot{color:var(--vacant);opacity:.75}
+.tbtn{background:var(--surface);border:1px solid var(--line);color:var(--ink-2);padding:4px 10px;border-radius:6px;font:inherit;font-size:11.5px;cursor:pointer}
+.tbtn.on{background:var(--brand-wash);border-color:var(--brand);color:var(--brand-deep)}
+.btns{margin-left:auto;display:flex;gap:6px}
+.tbtn:focus-visible,.tab:focus-visible,.ov:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+/* pills */
+.pill{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:500;padding:2px 7px;border-radius:4px;letter-spacing:.02em;white-space:nowrap}
+.pill.hc{background:var(--brand-wash);color:var(--brand-deep)}
+.pill.act{background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line-soft)}
+.pill.vac{background:var(--vacant-wash);color:var(--vacant)}
+.pill[data-zero="1"]{opacity:.35}
+
+/* overview */
+h2{font-size:16px;font-weight:600;margin:18px 0 4px}
+.h2sub{color:var(--ink-3);font-size:11.5px;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:9px}
+.ov{background:var(--surface);border:1px solid var(--line-soft);border-radius:10px;padding:12px 13px;cursor:pointer;box-shadow:var(--shadow);text-align:left;font:inherit;color:inherit;display:flex;flex-direction:column;gap:6px}
+.ov:hover{border-color:var(--brand)} .ov.sel{box-shadow:0 0 0 2px var(--brand),var(--shadow)}
+.ov.ext{border-style:dashed}
+.ov-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.ov-name{font-size:13.5px;font-weight:600;line-height:1.25}
+.ov-en{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-top:1px}
+.ov-hc{font-family:"IBM Plex Mono",monospace;font-size:20px;font-weight:700;color:var(--brand-deep)}
+.bar{height:5px;border-radius:3px;background:var(--vacant-wash);overflow:hidden;display:flex}
+.bar i{display:block;height:100%;background:var(--brand)}
+.ov-stats{display:flex;gap:5px;align-items:center;font-size:10.5px;color:var(--ink-3)}
+.ov-stats .pct{margin-left:auto}
+table.pt{width:100%;border-collapse:collapse;font-size:11px;margin-top:2px}
+.pt th{font-weight:500;color:var(--ink-3);text-align:right;padding:2px 0;font-size:10px;letter-spacing:.04em}
+.pt th:first-child{text-align:left}
+.pt td{padding:2px 0;text-align:right;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-2)}
+.pt td:first-child{text-align:left;font-family:inherit;color:var(--ink)}
+.pt td.neg{color:var(--vacant)} .pt td.dash{opacity:.4} .pt tr.sum td{border-top:1px solid var(--line-soft);font-weight:600;padding-top:4px}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:1px}
+.pt tr.grp td{padding:6px 0 2px;border-bottom:1px solid var(--line-soft);font-family:inherit;text-align:left}
+.pt tr.grp span{font-weight:600;font-size:11px;color:var(--brand-deep)} .pt tr.grp small{margin-left:6px;font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--ink-3)} .pt tr.grp em{font-style:normal;color:var(--vacant)}
+.pt.split td:first-child{padding-left:8px} .pt.split tr.grp td,.pt.split tr.sum td{padding-left:0}
+
+/* tabs */
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:18px 0 12px;padding-top:14px;border-top:1px solid var(--line-soft)}
+.tab{background:var(--surface);border:1px solid var(--line-soft);border-radius:999px;padding:5px 11px;font:inherit;font-size:12px;color:var(--ink-2);cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.tab .n{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-3)}
+.tab.sel{background:var(--brand);border-color:var(--brand);color:#fff} .tab.sel .n{color:rgba(255,255,255,.85)}
+.tab.ext{border-style:dashed}
+
+/* chart panel */
+.panel{background:var(--surface);border:1px solid var(--line-soft);border-radius:12px;padding:18px 18px 24px;box-shadow:var(--shadow)}
+.zoombar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:-6px 0 12px;font-size:11px;color:var(--ink-3)}
+.zoombar .zl{font-weight:600;margin-right:2px}
+.zoombar input[type=range]{width:140px;accent-color:var(--brand)}
+.zoombar .zv{font-family:"IBM Plex Mono",monospace;min-width:38px}
+.zoomwrap{width:100%;overflow:hidden;position:relative}
+.zoombar .zsep{width:1px;height:18px;background:var(--line-soft);margin:0 4px}
+.zoombar .zhint{color:var(--ink-3)}
+.sp.sp-more{margin-top:22px;padding-top:18px;border-top:1px dashed var(--line)}
+.tab.over,.ov.over{outline:2px dashed var(--brand);outline-offset:2px;background:var(--brand-wash)}
+body.is-dragging .tab,body.is-dragging .ov{cursor:copy}
+.panel-head{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:16px}
+.panel-head h2{margin:0;font-size:20px} .panel-head .en{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.panel-head .pills{display:flex;gap:5px;margin-left:6px}
+.chart{width:max-content;display:flex;flex-direction:column;align-items:center;will-change:transform}
+
+.tier-lab{font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-bottom:5px;text-align:center}
+.tier{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.mgrcard{background:var(--mgrbox);color:#fff;border-radius:6px;padding:10px 18px;width:214px;min-height:136px;text-align:center;box-shadow:var(--shadow);position:relative;display:flex;flex-direction:column;justify-content:center}
+.mgrcard .p-name{font-size:15.5px;font-weight:600}
+.mgrcard .p-sub{font-size:12px;color:rgba(255,255,255,.85);margin-top:1px}
+.mgrcard .p-sal{color:rgba(255,255,255,.9);justify-content:center;gap:18px} .mgrcard .p-sal .tor{color:#fff}
+.mgrcard .p-extra{text-align:center;color:rgba(255,255,255,.8)}
+.mgrcard .slot{color:rgba(255,255,255,.7)}
+.mgrcard.vacant{background:var(--vacant-wash);color:var(--vacant);border:1.5px dashed var(--vacant);box-shadow:none}
+.mgrcard.vacant .p-sub,.mgrcard.vacant .p-sal,.mgrcard.vacant .p-sal .tor{color:var(--vacant)}
+.vline{width:1px;height:17px;background:var(--line)}
+
+.branch-head{display:flex;flex-direction:column;align-items:center;padding:0 9px}
+/* connectors: each child draws its own stub + half/full top segment so the bus spans first→last child centre */
+.branch-row,.subrow{display:flex;align-items:flex-start;justify-content:center;position:relative;padding-top:17px}
+.branch-row{gap:12px} .subrow{gap:10px;padding:17px 9px 9px}
+.branch-row > *,.subrow > *{position:relative;flex:0 0 auto}
+.branch-row > *::before,.subrow > *::before{content:"";position:absolute;left:50%;top:-17px;width:1px;height:17px;background:var(--line)}
+.branch-row > *::after,.subrow > *::after{content:"";position:absolute;top:-17px;height:1px;background:var(--line);left:-6px;right:-6px}
+.subrow > *::after{left:-5px;right:-5px}
+.branch-row > :first-child::after,.subrow > :first-child::after{left:50%}
+.branch-row > :last-child::after,.subrow > :last-child::after{right:50%}
+.branch-row > :only-child::after,.subrow > :only-child::after{display:none}
+.branch-row.noline{padding-top:0} .branch-row.noline > *::before,.branch-row.noline > *::after{display:none}
+.branch{display:flex;flex-direction:column;align-items:center}
+.subrow .col{flex:0 0 214px}
+.col-heads{padding:9px 9px 0;display:flex;flex-direction:column;align-items:center;gap:2px}
+.col-heads .tier{gap:10px} .col-heads .tier-lab{margin-bottom:3px}
+.col-heads .tier-lab + .tier + .tier-lab{margin-top:10px}
+.col-heads:has(+ .subrow)::after,.col-heads:has(+ .col-body)::after,.col-body:has(+ .subrow)::after{content:"";display:block;width:1px;height:17px;background:var(--line);margin:9px auto 0}
+.col-heads:has(+ .subrow),.col-body:has(+ .subrow){padding-bottom:0}
+.col-heads:has(+ .col-body) + .col-body{padding-top:0}
+.col-heads:has(+ .col-body) + .col-body .rlab:first-child{margin-top:8px}
+.col:last-child{min-height:0}
+
+.col{flex:0 0 214px;display:flex;flex-direction:column;position:relative;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:10px;min-height:90px}
+.col.wide{flex-basis:auto;min-width:214px}
+.col-head{padding:9px 11px;border-radius:9px 9px 0 0;text-align:center;color:#fff}
+.col-head.t-teal{background:var(--tone-teal)} .col-head.t-blue{background:var(--tone-blue)}
+.col-head.t-pink{background:var(--tone-pink)} .col-head.t-brown{background:var(--tone-brown)}
+.col-head.t-yellow{background:var(--tone-yellow);color:var(--tone-yellow-ink)}
+.col-head.t-orange{background:var(--tone-orange);color:var(--tone-orange-ink)}
+.col-head.t-night{background:var(--tone-night)} .col-head.t-purple{background:var(--tone-purple)}
+.col-name{font-weight:600;font-size:13.5px;line-height:1.25}
+.col-en{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;margin-top:2px;opacity:.72}
+.col-stats{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:7px}
+.col-head .pill.hc{background:rgba(255,255,255,.3);color:inherit}
+.col-head .pill.act{background:rgba(255,255,255,.16);color:inherit;border-color:transparent}
+.col-head .pill.vac{background:rgba(255,255,255,.92);color:#B03A30}
+.col-body{padding:9px;display:flex;flex-direction:column;flex:1}
+.rlab{font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin-top:12px;margin-bottom:4px}
+.rlab:first-child{margin-top:0}
+.card + .card{margin-top:13px;position:relative}
+.card + .card::before{content:"";position:absolute;left:50%;top:-13px;width:1px;height:13px;background:var(--line)}
+.col-body:empty::after{content:"—";display:block;text-align:center;color:var(--ink-3);padding:14px}
+
+/* card */
+.card{background:var(--surface);border:1px solid var(--line-soft);border-left:3px solid var(--ink-3);border-radius:7px;padding:8px 11px;box-shadow:var(--shadow);position:relative;text-align:left;width:196px;min-height:154px;display:flex;flex-direction:column}
+.card .moved{min-height:14px;margin-top:auto}
+.p-name{min-height:34px}
+.card.vacant{border:1px dashed var(--vacant);border-left:3px solid var(--vacant);background:var(--vacant-wash);box-shadow:none}
+.card.vacant .p-name{color:var(--vacant);font-weight:600}
+.p-name{font-size:12.5px;font-weight:500;line-height:1.35;word-break:break-word}
+.p-id{font-family:"IBM Plex Mono",monospace;font-size:9px;color:var(--ink-3);margin-left:5px;white-space:nowrap}
+.vtag{display:inline-block;margin-left:6px;font-family:"IBM Plex Mono",monospace;font-size:8.5px;letter-spacing:.1em;font-weight:700;border:1px solid var(--vacant);border-radius:3px;padding:0 4px;vertical-align:1px;color:var(--vacant)}
+.p-hdr{display:flex;justify-content:space-between;font-size:8.5px;letter-spacing:.1em;color:var(--ink-3);margin-top:5px;font-weight:600}
+.p-role{display:flex;justify-content:space-between;gap:8px;font-size:11px;margin-top:1px}
+.p-role .torp{font-weight:500}
+.chip{--c:#8C9A96;display:inline-block;padding:0 6px;border-radius:4px;font-weight:600;font-size:10.5px;line-height:1.5;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent);border:1px solid color-mix(in srgb,var(--c) 45%,transparent);white-space:nowrap}
+:root[data-theme="dark"] .chip{color:color-mix(in srgb,var(--c) 55%,white)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .chip{color:color-mix(in srgb,var(--c) 55%,white)}}
+.rlab .dot{width:7px;height:7px;margin-right:4px}
+.card{background:color-mix(in srgb,var(--c) 10%,var(--surface));border-left-width:5px}
+.card.vacant{background:color-mix(in srgb,var(--c) 6%,var(--vacant-wash))}
+.card .p-role .torp{color:var(--c);font-weight:600}
+.mgrcard{justify-content:center}
+.legend .chip{font-size:10.5px}
+.chip.mis{outline:1.5px solid var(--warn);outline-offset:1px}
+.p-role .hrp.chip{font-weight:600}
+.trans{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.trans .tr{display:inline-flex;align-items:center;gap:5px;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:999px;padding:3px 9px 3px 5px;font-size:11px}
+.trans .arr{color:var(--ink-3)} .trans b{font-family:"IBM Plex Mono",monospace;font-size:11px;margin-left:2px}
+.tblwrap{overflow-x:auto;border:1px solid var(--line-soft);border-radius:8px}
+table.mt{width:100%;border-collapse:collapse;font-size:11.5px;min-width:900px}
+.mt th{position:sticky;top:0;background:var(--surface-2);color:var(--ink-3);font-weight:600;font-size:10px;letter-spacing:.06em;text-transform:uppercase;text-align:left;padding:7px 9px;border-bottom:1px solid var(--line-soft)}
+.mt td{padding:6px 9px;border-bottom:1px solid var(--line-soft);vertical-align:middle;white-space:nowrap}
+.mt tbody tr:hover{background:var(--surface-2)}
+.mt .r{text-align:right} .mt .mono{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+.mt .over{color:var(--sal-over);font-weight:600} .mt .under{color:var(--sal-under);font-weight:600}
+.mt .lv{color:var(--ink-3)} .mt .lv.hi{color:var(--warn);font-weight:600} .mt .lv.lo{color:var(--sal-under);font-weight:600}
+.mt .p-id{display:block;margin:0}
+/* qualification badges on cards */
+.from{margin-top:4px;font-size:9.5px;line-height:1.3;color:var(--warn);font-weight:600;background:color-mix(in srgb,var(--warn) 12%,transparent);border-radius:4px;padding:1px 6px;display:inline-block;max-width:100%;white-space:normal}
+.dk-cards .card .from{font-size:8.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.hire{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;margin-top:5px;font-size:9.5px;line-height:1.3}
+.hire .hp{font-weight:700;color:var(--brand-deep);background:var(--brand-wash);border-radius:3px;padding:0 5px}
+.hire .hs{color:var(--ink-2)} .hire .hd{color:var(--ink-3);font-family:"IBM Plex Mono",monospace;font-size:9px}
+.pool .card .from{margin-top:4px;font-size:9.5px;line-height:1.3;color:var(--warn);font-weight:600;background:color-mix(in srgb,var(--warn) 12%,transparent);border-radius:4px;padding:1px 6px;display:inline-block;max-width:100%;white-space:normal}
+.dk-cards .card .from{font-size:8.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.hire{display:flex;margin-top:3px} .pool .card .hire .hs{display:none}
+.hire.fut .hp{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)} .hire.fut .hd{color:var(--warn);font-weight:600}
+.pool .card:has(.hire.fut){border-style:dashed}
+.pool .cards .rlab.hl.fut{color:var(--warn)}
+.pool .cards .rlab.hl{font-size:10px;color:var(--brand-deep);border-bottom:1px solid var(--line-soft);padding-bottom:3px;margin-top:8px}
+.qb{display:flex;gap:3px;margin-top:5px}
+.qb span{flex:1;text-align:center;font-family:"IBM Plex Mono",monospace;font-size:8.5px;font-weight:700;letter-spacing:.06em;padding:1px 0;border-radius:3px;border:1px solid var(--line-soft);color:var(--ink-3);opacity:.45;background:var(--surface)}
+.qb span.on{opacity:1;color:#fff;border-color:transparent}
+.qb .g.on{background:#1E40AF} .qb .m.on{background:#0D9488} .qb .c.on{background:#EA580C}
+.qb.none{font-size:8.5px;color:var(--ink-3);opacity:.6;justify-content:center}
+.pool .card .qb{display:none}
+/* qualification section */
+.qwrap{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-start;margin-top:8px}
+.qvenn{flex:0 1 420px;min-width:280px} .venn{width:100%;height:auto;display:block}
+.venn circle{fill:var(--vc);fill-opacity:.16;stroke:var(--vc);stroke-width:1.5;cursor:pointer;transition:fill-opacity .15s}
+.venn .vc:hover circle,.venn .vc.sel circle{fill-opacity:.34;stroke-width:2.5}
+.venn .vc text{font:600 11px "IBM Plex Sans Thai",sans-serif;fill:var(--vc);cursor:pointer;letter-spacing:.06em;text-transform:uppercase}
+.venn .vn text{font:700 14px "IBM Plex Mono",monospace;fill:var(--ink);text-anchor:middle;pointer-events:none}
+.venn .vn text.vl{font:500 9px "IBM Plex Sans Thai",sans-serif;fill:var(--ink-3)}
+.venn .vn text.big{font-size:20px}
+.qside{flex:1 1 320px;display:flex;flex-direction:column;gap:10px}
+.qsets{display:flex;gap:8px;flex-wrap:wrap}
+.qset{flex:1 1 100px;background:var(--surface-2);border:1px solid var(--line-soft);border-left:4px solid var(--vc);border-radius:8px;padding:8px 10px;text-align:left;font:inherit;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;gap:1px}
+.qset b{font-family:"IBM Plex Mono",monospace;font-size:20px;font-weight:700;color:var(--vc)} .qset small{color:var(--ink-3);font-size:10px}
+.qset:hover,.qset.sel{border-color:var(--vc);box-shadow:0 0 0 1px var(--vc) inset}
+.qrows{display:flex;flex-direction:column;gap:4px}
+.qrow{display:grid;grid-template-columns:auto 1fr auto 44px;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line-soft);border-radius:7px;padding:5px 10px;font:inherit;font-size:12px;color:var(--ink);cursor:pointer;text-align:left}
+.qrow:hover{border-color:var(--brand)} .qrow.sel{border-color:var(--brand);background:var(--brand-wash)}
+.qrow b{font-family:"IBM Plex Mono",monospace;font-size:14px} .qrow .qp{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-3);text-align:right}
+.qdots{display:inline-flex;gap:3px} .qdots i{font:700 8.5px "IBM Plex Mono",monospace;letter-spacing:.06em;padding:1px 5px;border-radius:3px;border:1px solid var(--line-soft);color:var(--ink-3);opacity:.4;font-style:normal}
+.qdots i.on{opacity:1;color:#fff;border-color:transparent} .qdots .g.on{background:#1E40AF} .qdots .m.on{background:#0D9488} .qdots .c.on{background:#EA580C}
+.qins{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-top:12px}
+.qi{background:var(--surface-2);border:1px solid var(--line-soft);border-radius:8px;padding:8px 11px;font-size:11.5px;color:var(--ink-2);line-height:1.45} .qi b{display:block;color:var(--ink);font-family:"IBM Plex Mono",monospace;font-size:11px;margin-bottom:2px}
+/* overall chart */
+.tab.all{border-color:var(--brand);color:var(--brand-deep);font-weight:600}
+.allcol{width:212px}
+.scard{width:212px;background:var(--surface);border:1px solid var(--line-soft);border-top:4px solid var(--brand);border-radius:8px;padding:9px 11px;box-shadow:var(--shadow);cursor:pointer;text-align:left}
+.scard:hover,.scard:focus-visible{border-color:var(--brand);outline:none}
+.sc-n{font-family:"Bai Jamjuree",sans-serif;font-weight:600;font-size:13px;line-height:1.25}
+.sc-e{font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-top:1px}
+.sc-m{font-size:11.5px;margin-top:6px;display:flex;align-items:center;gap:2px;min-height:16px}
+.scard .col-stats{justify-content:flex-start;margin-top:7px}
+.ustack{display:flex;flex-direction:column;align-items:center;margin-top:0}
+.ustack::before{content:"";width:1px;height:14px;background:var(--line)}
+.ucard{width:212px;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:8px;padding:8px 10px;position:relative}
+.ucard + .ucard{margin-top:12px}
+.ucard + .ucard::before{content:"";position:absolute;left:50%;top:-13px;width:1px;height:12px;background:var(--line)}
+.u-h{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.u-n{font-weight:600;font-size:12px;line-height:1.25} .u-hc{font-size:11px;color:var(--ink-3)}
+.u-s{font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin-top:1px}
+.u-rows{margin-top:6px;display:flex;flex-direction:column;gap:2px}
+.u-r{display:grid;grid-template-columns:auto 1fr auto 30px;align-items:center;gap:5px;font-size:11px}
+.u-r .dot{margin:0} .u-r b{font-size:11.5px} .u-r em{font-style:normal;font-size:10.5px;color:var(--vacant);text-align:right;font-weight:600} .u-r em.z{color:var(--ink-3);opacity:.4;font-weight:400}
+.u-f{display:flex;gap:4px;margin-top:7px}
+.del{position:absolute;top:-7px;right:-7px;width:19px;height:19px;border-radius:50%;border:1px solid var(--vacant);background:var(--surface);color:var(--vacant);font:700 13px/1 "IBM Plex Sans Thai",sans-serif;cursor:pointer;padding:0;display:none;align-items:center;justify-content:center;box-shadow:var(--shadow);z-index:2}
+.card:hover .del,.card:focus-within .del{display:flex} .del:hover{background:var(--vacant);color:#fff}
+.card:hover .del ~ .bandtag,.card:has(.del:hover) .bandtag{opacity:0}
+/* move button + picker + dock */
+.mv{position:absolute;right:6px;bottom:5px;font:600 9.5px "IBM Plex Sans Thai",sans-serif;background:var(--surface);border:1px solid var(--line);color:var(--ink-2);border-radius:5px;padding:1px 6px;cursor:pointer;opacity:0;transition:opacity .12s}
+.card:hover .mv,.card:focus-within .mv{opacity:1} .pool .card .mv,.dk-cards .card .mv{opacity:1;position:static;margin-top:4px;align-self:flex-end}
+.mv:hover{border-color:var(--brand);color:var(--brand-deep)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px}
+.pk-box{background:var(--surface);border:1px solid var(--line);border-radius:12px;width:min(880px,100%);max-height:min(80vh,640px);display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.pk-h{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--line-soft)} .pk-h b{font-size:14px;display:block} .pk-h small{color:var(--ink-3);font-size:11px}
+.pk-body{display:grid;grid-template-columns:260px 1fr;min-height:0;flex:1}
+.pk-left{border-right:1px solid var(--line-soft);overflow:auto;padding:8px;display:flex;flex-direction:column;gap:4px}
+.pk-sc{text-align:left;background:var(--surface-2);border:1px solid var(--line-soft);border-radius:7px;padding:7px 10px;font:inherit;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;gap:1px}
+.pk-sc span{font-size:12.5px;font-weight:600} .pk-sc small{font-size:10.5px;color:var(--ink-3);font-family:"IBM Plex Mono",monospace}
+.pk-sc:hover,.pk-sc.sel{border-color:var(--brand);background:var(--brand-wash)} .pk-sc.zero{opacity:.5} .pk-sc.pool{border-style:dashed;margin-top:6px}
+.pk-right{overflow:auto;padding:10px 12px}
+.pk-u{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:600;margin:8px 0 4px} .pk-u:first-child{margin-top:0}
+.pk-slot{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:8px;width:100%;text-align:left;background:var(--surface);border:1px dashed var(--vacant);border-left:4px solid var(--c);border-radius:7px;padding:6px 10px;font:inherit;color:var(--ink);cursor:pointer;margin-bottom:4px}
+.pk-slot i{width:8px;height:8px;border-radius:50%;background:var(--c)} .pk-slot span{font-weight:600;font-size:12px;color:var(--c)} .pk-slot small{color:var(--ink-3);font-size:10.5px}
+.pk-slot em{font-style:normal;font-size:9.5px;font-weight:700;color:var(--brand-deep);background:var(--brand-wash);border-radius:4px;padding:1px 6px}
+.pk-slot:hover{background:var(--brand-wash);border-color:var(--brand)} .pk-slot.match{background:color-mix(in srgb,var(--brand-wash) 60%,var(--surface))}
+.pk-hint{color:var(--ink-3);padding:30px;text-align:center;font-size:12px}
+@media (max-width:640px){.pk-body{grid-template-columns:1fr}.pk-left{border-right:0;border-bottom:1px solid var(--line-soft);max-height:35vh}}
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:150;background:var(--surface);border-top:2px solid var(--brand);box-shadow:0 -8px 24px rgba(0,0,0,.18);padding:8px 14px 10px}
+.dk-h{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--ink-3);margin-bottom:6px} .dk-h b{color:var(--ink);font-size:12.5px} .dk-h .tbtn{margin-left:auto}
+.dk-cards{display:flex;gap:6px;overflow-x:auto;padding:4px 2px 6px;min-height:60px;border:1px dashed var(--line);border-radius:8px}
+.dk-cards .card{flex:0 0 150px;width:150px;min-height:0;padding:5px 7px 6px;border-left-width:3px}
+.dk-cards .card .p-name{min-height:0;font-size:11px;line-height:1.3} .dk-cards .card .p-id{display:block;font-size:8.5px} .dk-cards .card .slot,.dk-cards .card .p-hdr,.dk-cards .card .p-extra,.dk-cards .card .moved,.dk-cards .card .qb,.dk-cards .card .hire .hs{display:none}
+.dk-cards .card .p-role{font-size:10px;margin-top:3px} .dk-cards .card .p-sal{font-size:9.5px} .dk-cards .card .bandtag{top:-6px;right:-5px;height:15px;min-width:15px;font-size:9px}
+.dk-cards .empty{color:var(--ink-3);font-size:11px;padding:16px;align-self:center}
+.dk-cards.over{background:var(--brand-wash)}
+body.dock-open{padding-bottom:210px}
+.searchbar{position:relative;display:flex;align-items:center;gap:8px;margin:0 0 14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 8px 6px 12px;box-shadow:var(--shadow)}
+.searchbar:focus-within{border-color:var(--brand);box-shadow:0 0 0 2px var(--brand-wash)}
+.searchbar .sico{color:var(--ink-3);font-size:16px}
+.searchbar input{flex:1;border:0;background:transparent;font:inherit;font-size:13px;color:var(--ink);outline:none;min-width:0}
+.searchbar input::placeholder{color:var(--ink-3)}
+.sres{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:50;background:var(--surface);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.18);max-height:min(60vh,480px);overflow:auto;padding:6px}
+.sr-h{font-size:10.5px;color:var(--ink-3);padding:6px 10px 4px;letter-spacing:.04em}
+.sr{display:grid;grid-template-columns:minmax(160px,1.2fr) minmax(160px,1.4fr) auto;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-radius:7px;padding:7px 10px;font:inherit;color:var(--ink);cursor:pointer}
+.sr:hover,.sr:focus-visible{background:var(--surface-2);outline:none}
+.sr-n{font-weight:600;font-size:12.5px} .sr-n .p-id{display:inline;margin-left:6px}
+.sr-w{font-size:11px;color:var(--ink-3)} .sr-p{display:flex;gap:4px;justify-content:flex-end;flex-wrap:wrap}
+@media (max-width:640px){.sr{grid-template-columns:1fr;gap:3px}.sr-p{justify-content:flex-start}}
+body.searching .card[data-key]:not(.hit),body.searching .mgrcard[data-key]:not(.hit){opacity:.28;filter:saturate(.4)}
+.card.hit,.mgrcard.hit{box-shadow:0 0 0 2px var(--brand),var(--shadow-lift,0 6px 18px rgba(0,0,0,.18))}
+@keyframes flash{0%,100%{box-shadow:0 0 0 2px var(--brand)}50%{box-shadow:0 0 0 6px var(--brand),0 0 24px var(--brand)}}
+.card.flash,.mgrcard.flash{animation:flash .8s ease-in-out 3}
+@media (prefers-reduced-motion:reduce){.card.flash,.mgrcard.flash{animation:none}}
+.card.tor{border:1px solid color-mix(in srgb,var(--c) 40%,var(--line-soft));border-left:5px solid var(--c);background:color-mix(in srgb,var(--c) 10%,var(--surface));box-shadow:none;cursor:default}
+.vtag.tor{border-color:var(--c);color:var(--c)}
+body.torview .searchbar,body.torview .kpi.pool,body.torview #resetbtn,body.torview #salbtn{display:none}
+body.torview .notice .stat{display:none}
+body.tor-only #torbtn,body.tor-only .notice b + *{}
+.postbl{min-width:640px} .postbl td,.postbl th{padding:5px 9px} .postbl .dim{color:var(--ink-3);opacity:.55}
+.postbl .barcol{width:34%;min-width:160px} .postbl .bar{height:6px;background:var(--surface-2)}
+.postbl tfoot td{border-top:2px solid var(--line);border-bottom:0;background:var(--surface-2)}
+.posgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin-top:6px}
+.pos{background:color-mix(in srgb,var(--c) 7%,var(--surface));border:1px solid var(--line-soft);border-left:4px solid var(--c);border-radius:8px;padding:8px 10px 9px;display:flex;flex-direction:column;gap:6px}
+.pos.short{border-color:color-mix(in srgb,var(--vacant) 45%,var(--line-soft));border-left-color:var(--c)}
+.pos.total{--c:var(--brand);background:var(--brand-wash)}
+.pos-top{display:flex;align-items:baseline;gap:6px}
+.pos-i{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink-3);min-width:16px}
+.pos-name{font-weight:600;font-size:12.5px;color:var(--c);flex:1;line-height:1.25}
+.pos.total .pos-name{color:var(--brand-deep)}
+.pos-hc{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-3);white-space:nowrap}
+.pos-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.pos-nums div{display:flex;flex-direction:column} .pos-nums small{font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.pos-nums b{font-family:"IBM Plex Mono",monospace;font-size:16px;font-weight:700;line-height:1.1}
+.pos-nums b.neg{color:var(--vacant)} .pos-nums b.zero{color:var(--ink-3);opacity:.6}
+.pos .bar{height:4px}
+.facets{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px;margin-top:12px}
+.fc{background:var(--surface-2);border:1px solid var(--line-soft);border-radius:8px;padding:9px 10px}
+.fc-h b{display:block;font-size:12px} .fc-h span{font-size:10.5px;color:var(--ink-3)}
+.fc-b{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px}
+.fb{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--line-soft);border-radius:999px;padding:2px 8px 2px 9px;font:inherit;font-size:11px;color:var(--ink);cursor:pointer}
+.fb b{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink-2)}
+.fb:hover{border-color:var(--brand)} .fb.sel{background:var(--brand);border-color:var(--brand);color:#fff} .fb.sel b{color:#fff}
+.fb.zero{opacity:.45}
+.scbar{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:6px 0 8px}
+.scbar .zl{font-size:11px;font-weight:600;color:var(--ink-3);margin-right:3px}
+.scbar .tbtn{border-radius:999px;padding:3px 10px} .scbar .tbtn b{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-3);margin-left:4px;font-weight:500}
+.scbar .tbtn.on{background:var(--brand);border-color:var(--brand);color:#fff} .scbar .tbtn.on b{color:rgba(255,255,255,.85)}
+.facets-pos{grid-template-columns:1fr;margin-top:12px}
+.fb.pb i{width:8px;height:8px;border-radius:50%;background:var(--c);display:inline-block}
+.fb.pb.sel{background:var(--c);border-color:var(--c)} .fb.pb.sel i{background:#fff}
+.doc{display:inline-block;font-size:10px;font-weight:700;padding:1px 7px;border-radius:4px;cursor:help}
+.doc.ok{background:var(--brand-wash);color:var(--brand-deep)} .doc.wait{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.qtbl{min-width:1500px} .qtbl tfoot td{border-top:2px solid var(--line);background:var(--surface-2)} .degcell small{display:block;color:var(--ink-3);font-size:9.5px;max-width:220px;white-space:normal;line-height:1.25}
+.mt .qy{color:var(--ink);font-weight:500} .mt .qn{color:var(--ink-3);opacity:.5} .p-role .hrp{text-align:right;font-weight:600} .p-role .hrp.mis{text-decoration:underline dotted var(--warn);text-underline-offset:3px}
+.p-sal{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:2px;font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-variant-numeric:tabular-nums;color:var(--ink-3)}
+.p-sal .tor{color:var(--ink-2)} .p-sal .none{opacity:.55}
+.p-sal .act{color:var(--ink-2);text-align:right;font-weight:700} .p-sal .act.over{color:var(--sal-over)} .p-sal .act.under{color:var(--sal-under)}
+.p-extra{text-align:right;margin-top:1px;line-height:1.35;font-family:"IBM Plex Mono",monospace;font-size:9.5px;font-variant-numeric:tabular-nums;color:var(--ink-3)}
+.p-extra.base{color:var(--ink-2)} .p-extra.x20{color:var(--sal-over)} .p-extra.xsh{color:var(--brand)}
+.p-extra .none{opacity:.55}
+body.nosal .p-sal,body.nosal .p-extra,body.nosal .salbox:not(.keep),body.nosal .salk,body.nosal .salcol{display:none}
+body.nosal .qtbl{min-width:1100px} body.nosal .mt{min-width:700px}
+.card.big{border-left-width:4px}
+.card.big .p-name{font-size:13px;font-weight:600}
+.bandtag{position:absolute;top:-7px;right:-6px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;font:700 10.5px/1 "IBM Plex Mono",monospace;letter-spacing:.04em;border:1px solid var(--band-bd);background:var(--band-bg);color:var(--band-fg);box-shadow:var(--shadow)}
+.bandtag[data-b="A"]{--band-bg:#E8F1FF;--band-fg:#13457F;--band-bd:#B6D2F5}
+.bandtag[data-b="B"]{--band-bg:#E7F6EC;--band-fg:#17603A;--band-bd:#B4E0C6}
+.bandtag[data-b="C"]{--band-bg:#FFF4DC;--band-fg:#7A4A00;--band-bd:#F0D49A}
+.bandtag[data-b="D"]{--band-bg:#FCE9F3;--band-fg:#8A1B5C;--band-bd:#F0BCD8}
+.bandtag[data-b="E"]{--band-bg:#EFE8FF;--band-fg:#4A2A8A;--band-bd:#CDBCF2}
+.moved{font-size:9.5px;color:var(--warn);margin-top:3px}
+.kpi.pool .v{color:var(--warn)}
+.notice .stat{color:var(--ink-3);font-size:11px}
+[draggable="true"]{cursor:grab} [draggable="true"]:active{cursor:grabbing}
+.card.dragging,.mgrcard.dragging{opacity:.35}
+.drop.over{outline:2px solid var(--brand);outline-offset:2px;background:var(--brand-wash)!important;border-color:var(--brand)!important}
+.dropcard.over{outline:2px dashed var(--warn);outline-offset:2px;transform:translateY(-1px)}
+.dropcard.over::after{content:"⇄ สลับ";position:absolute;left:50%;top:-9px;transform:translateX(-50%);font-size:9px;font-weight:700;background:var(--warn);color:#fff;border-radius:8px;padding:1px 7px;letter-spacing:.06em}
+body.is-dragging .drop{border-style:dashed;border-color:var(--brand)}
+.card:focus-visible,.mgrcard:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+
+/* salary summary + pool */
+.salbox{margin-top:18px;display:flex;gap:9px;flex-wrap:wrap}
+.salbox .kpi{min-width:130px}
+.pool{margin-top:18px;background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:16px 18px}
+.pool h3{font-size:14px;font-weight:600} .pool .h2sub{margin-bottom:8px}
+.pool-head{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.pool .cards{display:grid;grid-template-columns:repeat(auto-fill,150px);justify-content:start;gap:6px;min-height:80px;padding:10px;border:1px dashed var(--line);border-radius:10px;background:var(--surface-2)}
+.pool .cards .rlab{grid-column:1/-1;margin:6px 0 0}
+.pool .cards .rlab:first-child{margin-top:0}
+.pool .card{width:150px;min-height:0;padding:5px 7px 6px;border-left-width:3px}
+.pool .card .p-name{min-height:0;font-size:11px;line-height:1.3}
+.pool .card .p-id{display:block;margin:0;font-size:8.5px}
+.pool .card .slot{display:none}
+.pool .card .p-hdr,.pool .card .p-extra,.pool .card .moved{display:none}
+.pool .card .p-role{font-size:10px;margin-top:3px}
+.pool .card .chip{font-size:9.5px;padding:0 5px}
+.pool .card .p-sal{font-size:9.5px}
+.pool .card .bandtag{top:-6px;right:-5px;height:15px;min-width:15px;font-size:9px;padding:0 4px}
+.pool .cards .rlab{font-size:9px;margin-top:4px}
+.pool .empty{grid-column:1/-1;text-align:center;color:var(--ink-3);padding:20px;font-size:12px}
+.pool .card + .card{margin-top:0} .pool .card + .card::before{display:none}
+.legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;font-size:11px;color:var(--ink-3)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.foot{margin-top:18px;font-size:11px;color:var(--ink-3)}
+@media (prefers-reduced-motion:no-preference){.ov,.tab{transition:border-color .12s,box-shadow .12s}}
+@media (max-width:640px){.kpi{min-width:80px;padding:6px 10px}.kpi .v{font-size:18px}}
+</style>
+<div class="gate" id="gate" hidden>
+  <form class="gate-box" id="pwform" autocomplete="off">
+    <div class="eyebrow">Rapid Transit System Business</div>
+    <h1 style="font-size:20px;margin:6px 0 4px">ผังกำลังพล RTB</h1>
+    <p>หน้านี้มีข้อมูลส่วนบุคคลของพนักงาน กรุณาใส่รหัสผ่านเพื่อเข้าใช้งาน · รหัสผ่านกำหนดระดับการเห็นข้อมูลเงินเดือน</p>
+    <label for="pw">รหัสผ่าน</label>
+    <input id="pw" type="password" inputmode="text" autocomplete="current-password" required>
+    <div class="gate-err" id="pwerr" role="alert"></div>
+    <button type="submit" class="gate-btn">เข้าสู่ระบบ</button>
+    <small>ข้อมูลเงินเดือนถูกเข้ารหัสไว้ในหน้านี้ และจะถอดรหัสในเครื่องคุณเมื่อรหัสผ่านระดับเห็นเงินเดือนถูกต้องเท่านั้น · ไม่มีการส่งรหัสผ่านออกไปที่ใด</small>
+  </form>
+</div>
+<div id="app" hidden>
+
+<div class="top">
+  <div>
+    <div class="eyebrow">Rapid Transit System Business</div>
+    <h1>Organizational Chart · ทุกหน่วยงาน</h1>
+    <div class="sub" id="subline"></div>
+  </div>
+  <div class="kpis">
+    <div class="kpi hc"><div class="l">TOR · ล็อค</div><div class="v" id="k-hc">0</div><div class="s">อัตราทั้งหมด</div></div>
+    <div class="kpi act"><div class="l">Active</div><div class="v" id="k-act">0</div><div class="s" id="k-act-p"></div></div>
+    <div class="kpi vac"><div class="l">Vacant</div><div class="v" id="k-vac">0</div><div class="s" id="k-vac-p"></div></div>
+    <div class="kpi pool"><div class="l">รอจัดสรร</div><div class="v" id="k-pool">0</div><div class="s">ไม่นับใน 362</div></div>
+  </div>
+</div>
+<div class="notice"><b>โครง TOR ล็อคที่ <span id="lock-n"></span> อัตรา</b> ช่องมีรหัสประจำภายใน เพิ่ม/ลดไม่ได้ · <b>ลากการ์ดพนักงาน</b>วางบนช่อง Vacant หรือกล่อง «อัตรารอจัดสรร» = ย้าย (ช่องเดิมกลับเป็น Vacant) · วางทับการ์ดคนอื่น = <b>สลับตำแหน่งกัน</b> ได้ทุกช่องทุก Structure · การย้ายบันทึกในเบราว์เซอร์นี้ <span class="stat" id="savestat"></span>
+  <span class="btns"><span class="rolebadge" id="rolebadge"></span><button class="tbtn" id="dockbtn" type="button" title="เปิดถาดลอยด้านล่างสำหรับลากคนจากอัตรารอจัดสรรขึ้นผัง">ถาดรอจัดสรร</button><button class="tbtn" id="torbtn" type="button">ดูเฉพาะโครง TOR</button><button class="tbtn" id="resetbtn" type="button">คืนค่าเริ่มต้น</button><button class="tbtn" id="salbtn" type="button" title="ซ่อนเงินเดือน TOR/HR ทุกจุดในหน้า รวมตาราง สรุป และการคัดลอก">ซ่อนเงินเดือน</button><button class="tbtn" id="theme" type="button">◐ สลับธีม</button><button class="tbtn" type="button" onclick="logout()">ออกจากระบบ</button></span></div>
+
+<div class="searchbar">
+  <span class="sico" aria-hidden="true">⌕</span>
+  <input id="q" type="search" placeholder="ค้นหาชื่อ / รหัสพนักงาน / ตำแหน่ง / หน่วยงาน …  (กด / หรือ Ctrl+K)" autocomplete="off" spellcheck="false">
+  <button type="button" class="tbtn" id="qclr">ล้าง</button>
+  <div class="sres" id="sres" hidden></div>
+</div>
+
+<div class="pool" id="positions" style="margin-top:0"></div>
+
+<h2>ภาพรวมทุก Structure</h2>
+<div class="h2sub">แต่ละ Structure มีคนตำแหน่งละกี่คน และขาดอีกกี่อัตรา · คลิกเพื่อเปิดผัง</div>
+<div class="alert" id="alert" hidden></div>
+<div class="grid" id="grid"></div>
+
+<div class="tabs" id="tabs"></div>
+<div class="panel" id="panel"></div>
+
+<div class="pool" id="pool"></div>
+
+<div class="pool" id="mismatch"></div>
+
+<div class="pool" id="qual"></div>
+
+<div class="legend" id="legend"></div>
+<div class="dock" id="dock" hidden></div>
+<div class="modal" id="picker" hidden></div>
+<div class="foot">พนักงานใหม่ในอัตรารอจัดสรร: จาก Google Sheet ตารางสรรหา (ชีต1) เกณฑ์ Interview Result = Pass · Hiring Status ≠ Reject · มี Start Date (ที่ยังไม่ถึงวันเริ่มงานแยกกลุ่ม "รอเริ่มงาน" ป้ายเหลือง กรอบเส้นประ) · ยังไม่มีชื่อในผัง · ตำแหน่ง TOR ตั้งต้นจาก Remark (Sr Tech / Engineer) ไม่ระบุ = Technician · Project/Team → Structure ที่ควรลงเป็นเพียงคำแนะนำ<br>คุณสมบัติ GCC / MA MRT / Construction MRT (คอลัมน์ S–U), ประสบการณ์ (Q · ปี, "ok" = มีแต่ไม่ระบุปี), ใบ CER ช่างไฟระดับ 1 (AT), กว. (Y), วุฒิการศึกษา (O · จำแนกระดับอัตโนมัติจากข้อความ): จาก รายชื่อพนักงาน Rapid Transit System Business ตามจริง 9.2.26-7(1).xlsx จับคู่ด้วยรหัสพนักงาน (สำรองด้วยชื่อ) · ป้าย GCC / MA / CM บนการ์ด สีทึบ = ผ่านคุณสมบัติ<br>แท็บ "ผังรวม RTB": Head of RTB → Structure → หน่วยงาน พร้อมจำนวนอัตราต่อตำแหน่ง (แดง = ขาด) คลิกการ์ด Structure เพื่อเจาะลง · ลบการ์ดในอัตรารอจัดสรร: ปุ่ม × มุมขวาบน (โผล่เมื่อชี้) · ลบแล้วไม่นับใน "รอจัดสรร" ค้นหาไม่พบ แต่คืนได้ทั้งหมดด้วยปุ่ม "คืนการ์ดที่ลบ (n)" หรือ "คืนค่าเริ่มต้น" · โยกย้ายจากอัตรารอจัดสรร: ปุ่ม "ย้ายไป ▾" บนการ์ด → เลือก Structure → เลือกช่องว่าง (ช่องตรงตำแหน่งขึ้นก่อน) หรือเปิด "ถาดรอจัดสรร" ลอยด้านล่างเพื่อลากขึ้นผังโดยตรง · โยกย้าย: ลาก-วางด้วยเมาส์ (วางบน Vacant/รอจัดสรร = ย้าย, วางทับการ์ดคน = สลับ) · ข้าม Structure: ลากไปชี้ค้างที่แท็บ/การ์ด Structure ปลายทาง ผังจะสลับให้แล้ววาง หรือเปิด "แสดงทุก Structure" หรือคีย์บอร์ด (Tab ไปที่การ์ด → Enter เลือก → Tab ไปปลายทาง → Enter) · การ์ดที่ถูกย้ายมีหมายเหตุ "ย้ายจาก …" · ไม่รวมพนักงาน CB · หน่วยธุรกิจก่อสร้าง<br>ที่มา: ผังกำลังพล-RTB-ส่งออก.xlsx (Desktop/Claude/ผังกำลังพล RTB) — ชีต «ผังกำลังพล RTB» · ชื่อ รหัสพนักงาน Band ตำแหน่ง HR เงินเดือน HR Additional 20% ค่ากะ · รวมฝั่ง HR = เงินเดือน HR + 20% + ค่ากะ · แดง = สูงกว่า TOR เขียว = ต่ำกว่า TOR · โครง TOR ล็อค 362 อัตรา (ESM 3 +1 / ESM 4 −3 ตามผังต้นฉบับ) · จัดรูปแบบตาม manpower-rtb-org.vercel.app</div>
+
+</div>
+<script>
+const TOR_LOCK = 362;
+const TOR_ONLY = true;
+function startApp(RAW, ROLE){
+let torView = TOR_ONLY || (() => { try { return localStorage.getItem('rtb-org-torview') === '1'; } catch(e){ return false; } })();
+const DATA = RAW.structures;
+const SAVE_KEY = 'rtb-org-assign-v2';
+
+const ROLE_COLOR = {
+  'Head of RTB':'#5B21B6','Technical Advisor':'#C026D3','Manager':'#1E40AF','Assistant Manager':'#7C3AED',
+  'Engineering Specialist':'#0369A1','Sr.Engineer':'#2563EB','Engineer':'#DB2777',
+  'Project Coordinator':'#92400E','PMO':'#A16207',
+  'Safety Officer':'#DC2626','Sr.Officer':'#0E7490','IT Officer':'#0891B2','Mat. Officer':'#4D7C0F','Officer':'#38BDF8','Sr.Clerk':'#64748B','Cust. Service':'#F472B6',
+  'Sr.Technician':'#EA580C','Sr.Technician (Building)':'#CA8A04',
+  'Technician':'#0D9488','Technician (Building)':'#16A34A','Asst.Technician':'#84CC16'
+};
+const ROLE_ORDER = ['Head of RTB','Technical Advisor','Manager','Assistant Manager','Engineering Specialist','Sr.Engineer','PMO','Engineer','Project Coordinator','Safety Officer','Sr.Officer','IT Officer','Mat. Officer','Officer','Sr.Clerk','Sr.Technician','Sr.Technician (Building)','Technician','Technician (Building)','Asst.Technician'];
+const rc = r => ROLE_COLOR[r] || '#8C9A96';
+const LEVEL = {'Manager':1,'Engineering Specialist':2,'Sr.Engineer':3,'Engineer':4,'Sr.Technician':5,'Sr.Technician (Building)':6,'Technician':7,'Technician (Building)':7,'Asst.Technician':8};
+const LEVEL_OFF = {'Sr.Officer':1,'Officer':2};
+function cmpLevel(tor, hr){
+  const a = LEVEL[tor], b = LEVEL[hr]; if (a!=null && b!=null) return a<b ? 'TOR สูงกว่า' : (a>b ? 'TOR ต่ำกว่า' : 'เท่ากัน');
+  const c = LEVEL_OFF[tor], d = LEVEL_OFF[hr]; if (c!=null && d!=null) return c<d ? 'TOR สูงกว่า' : (c>d ? 'TOR ต่ำกว่า' : 'เท่ากัน');
+  return '-';
+}
+const rank = r => { const i = ROLE_ORDER.indexOf(r); return i<0 ? 99 : i; };
+const num = n => Number(n).toLocaleString('en-US');
+const fmt = n => n==null ? '<span class="none">-</span>' : num(n);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const uniq = a => a.filter((v,i)=>a.indexOf(v)===i);
+
+/* ---------- slot & people registry ---------- */
+function allCards(col){ return [...col.cards, ...col.heads.flatMap(h=>h.cards), ...col.subs.flatMap(s=>s.cards)]; }
+function structCards(s){
+  const out = [...s.mgmt];
+  s.branches.forEach(b => { out.push(b.head); b.cols.forEach(c => out.push(...allCards(c))); });
+  s.cols.forEach(c => out.push(...allCards(c))); if (s.support) out.push(...allCards(s.support));
+  return out;
+}
+const SLOTS = {};            // id -> slot (pos, sal, struct, unit)
+function walkStruct(s, cb){
+  s.mgmt.forEach(c => cb(c, 'ชั้นบริหาร'));
+  const col = (c, prefix) => { c.heads.forEach(h => h.cards.forEach(x => cb(x, `${prefix}${c.name} · ${h.tier}`))); c.cards.forEach(x => cb(x, `${prefix}${c.name}`)); c.subs.forEach(t => t.cards.forEach(x => cb(x, `${prefix}${c.name} · ${t.name}`))); };
+  s.branches.forEach(b => { cb(b.head, b.dept || b.en || 'หัวสายงาน'); b.cols.forEach(c => col(c, '')); });
+  s.cols.forEach(c => col(c, '')); if (s.support) col(s.support, '');
+}
+const PEOPLE = {};           // key -> person
+const ORIGIN = {};           // key -> original slot id | 'POOL'
+const INITIAL = { assign:{}, pool:[], removed:[] };
+DATA.forEach(s => walkStruct(s, (c, unit) => {
+  SLOTS[c.id] = {id:c.id, pos:c.pos, sal:c.sal, sc:s.code, sname:s.name, unit};
+  INITIAL.assign[c.id] = null;
+  if (c.person){ const k = keyOf(c.person); PEOPLE[k] = {...c.person, key:k}; ORIGIN[k] = c.id; INITIAL.assign[c.id] = k; }
+}));
+RAW.pool.forEach(p => { const k = keyOf(p); PEOPLE[k] = {...p, key:k}; ORIGIN[k] = 'POOL'; INITIAL.pool.push(k); });
+function keyOf(p){ return (p.emp ? 'e'+p.emp : 'n'+p.name).replace(/\s+/g,'_'); }
+
+let state = load() || clone(INITIAL);
+let moves = 0;
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+function load(){
+  try { const raw = localStorage.getItem(SAVE_KEY); if (!raw) return null; const st = JSON.parse(raw);
+    if (!st.assign || !Array.isArray(st.pool)) return null;
+    // validate: every slot exists, every key exists, no duplicates
+    const seen = new Set(); const assign = {};
+    Object.keys(INITIAL.assign).forEach(id => { const k = st.assign[id] ?? null; assign[id] = (k && PEOPLE[k] && !seen.has(k)) ? (seen.add(k), k) : null; });
+    const pool = st.pool.filter(k => PEOPLE[k] && !seen.has(k) && (seen.add(k), true));
+    const removed = (st.removed||[]).filter(k => PEOPLE[k] && !seen.has(k) && (seen.add(k), true));
+    Object.keys(PEOPLE).forEach(k => { if (!seen.has(k)) pool.push(k); });   // anyone lost → pool
+    moves = st.moves || 0;
+    return {assign, pool, removed};
+  } catch(e){ return null; }
+}
+function save(){ try { localStorage.setItem(SAVE_KEY, JSON.stringify({...state, moves})); setStatus(`บันทึกในเบราว์เซอร์นี้แล้ว · ย้าย ${moves} ครั้ง`); } catch(e){ setStatus('บันทึกไม่ได้ (เบราว์เซอร์บล็อกที่เก็บข้อมูล) · การย้ายจะหายเมื่อรีเฟรช'); } }
+function setStatus(t){ const el = document.getElementById('savestat'); if (el) el.textContent = t; }
+const P = c => torView ? null : (state.assign[c.id] ? PEOPLE[state.assign[c.id]] : null);
+const whereIs = k => Object.keys(state.assign).find(id => state.assign[id]===k) || (state.pool.includes(k) ? 'POOL' : null);
+const isRemoved = k => state.removed.includes(k);
+
+/* ---------- moves ---------- */
+function movePerson(key, target){          // target: slot id or 'POOL'
+  const from = whereIs(key); if (!from || from === target) return false;
+  if (target !== 'POOL' && state.assign[target]) return false;   // only vacant slots accept
+  if (from === 'POOL') state.pool = state.pool.filter(k => k!==key); else state.assign[from] = null;
+  if (target === 'POOL') state.pool.unshift(key); else state.assign[target] = key;
+  moves++; save(); renderAll(); return true;
+}
+function swapPersons(a, b){
+  if (!a || !b || a === b) return false;
+  const la = whereIs(a), lb = whereIs(b); if (!la || !lb) return false;
+  const place = (loc, key, idxHint) => { if (loc === 'POOL') state.pool.splice(Math.min(idxHint, state.pool.length), 0, key); else state.assign[loc] = key; };
+  const ia = la === 'POOL' ? state.pool.indexOf(a) : -1, ib = lb === 'POOL' ? state.pool.indexOf(b) : -1;
+  if (la === 'POOL') state.pool = state.pool.filter(k => k!==a); else state.assign[la] = null;
+  if (lb === 'POOL') state.pool = state.pool.filter(k => k!==b); else state.assign[lb] = null;
+  place(la, b, ia); place(lb, a, ib);
+  moves++; save(); renderAll(); return true;
+}
+function dropOn(key, targetEl){
+  const other = targetEl.dataset.key;
+  if (other) return swapPersons(key, other);
+  return movePerson(key, targetEl.dataset.slot);
+}
+function removeFromPool(key){
+  if (!state.pool.includes(key)) return false;
+  state.pool = state.pool.filter(k => k!==key); state.removed.unshift(key);
+  moves++; save(); renderAll(); setStatus(`ลบ ${PEOPLE[key].name} ออกจากอัตรารอจัดสรร · กด "คืนการ์ดที่ลบ" เพื่อเอากลับ`); return true;
+}
+function restoreRemoved(){
+  if (!state.removed.length) return;
+  state.pool = [...state.removed, ...state.pool]; state.removed = []; moves++; save(); renderAll(); setStatus('คืนการ์ดที่ลบทั้งหมดกลับอัตรารอจัดสรรแล้ว');
+}
+function resetAll(){ if (!confirm('คืนค่าเริ่มต้นตามไฟล์ Excel? การย้ายทั้งหมดในเบราว์เซอร์นี้จะถูกล้าง')) return; state = clone(INITIAL); moves = 0; try{localStorage.removeItem(SAVE_KEY);}catch(e){} setStatus('คืนค่าเริ่มต้นแล้ว'); renderAll(); }
+
+/* ---------- rendering ---------- */
+const TONES = ['t-teal','t-blue','t-pink','t-brown'];
+function subTone(name){
+  if (/กะเช้า/.test(name)) return 't-yellow'; if (/กะบ่าย/.test(name)) return 't-orange'; if (/กะดึก/.test(name)) return 't-night';
+  if (/เหลือง/.test(name)) return 't-yellow'; if (/ชมพู/.test(name)) return 't-pink'; if (/น้ำเงิน/.test(name)) return 't-blue'; if (/ม่วง/.test(name)) return 't-purple';
+  return 't-teal';
+}
+const SUB_EN = {'กะเช้า':'MORNING · 06:30-15:30','กะบ่าย':'AFTERNOON · 14:30-23:30','กะดึก':'NIGHT · 22:30-07:30','ทีมช่าง':'TECHNICIAN TEAM'};
+const subEn = n => SUB_EN[n] || (/^ทีม (\d+)$/.test(n) ? 'TEAM '+n.match(/\d+/)[0] : (/^สายสี/.test(n) ? 'OCC LINE' : ''));
+
+function pills(cards){
+  const n = cards.length, a = cards.filter(P).length, v = n-a;
+  return `<div class="col-stats"><span class="pill hc">HC ${n}</span><span class="pill act"${a?'':' data-zero="1"'}>A ${a}</span><span class="pill vac"${v?'':' data-zero="1"'}>V ${v}</span></div>`;
+}
+function salCls(p, sal){ if(!p||p.sum==null||sal==null) return ''; return p.sum>sal?' over':(p.sum<sal?' under':''); }
+function extras(p){ return `<div class="p-extra base" title="เงินเดือน HR">${fmt(p.sal_hr)}</div><div class="p-extra x20" title="Additional 20%">${fmt(p.x20)}</div><div class="p-extra xsh" title="ค่ากะ">${fmt(p.shift)}</div>`; }
+function movedNote(p, here){
+  const o = ORIGIN[p.key];
+  if (o === here) return p.moved ? `<div class="moved">↳ ${esc(p.moved)}</div>` : '';
+  const from = o === 'POOL' ? 'อัตรารอจัดสรร' : `${SLOTS[o].sname} · ${o}`;
+  return `<div class="moved">↳ ย้ายจาก ${esc(from)}</div>`;
+}
+function originText(p){
+  const o = ORIGIN[p.key];
+  if (o && o !== 'POOL' && SLOTS[o]) { const s = SLOTS[o]; return `${s.sname}${s.unit && s.unit!=='-' ? ' · '+s.unit : ''} · ${s.pos}`; }
+  const src = p.src; if (!src || !src.sc || ['POOL','HIRE'].includes(src.sc)) return null;
+  const st = DATA.find(d => d.code===src.sc); const unit = [src.box, src.team].filter(Boolean).join(' · ');
+  return `${st ? st.name : src.sc}${unit ? ' · '+unit : ''}${p.tor ? ' · '+p.tor : ''}`;
+}
+function fromLine(p){ const t = originText(p); return t ? `<div class="from" title="ย้ายมาจาก ${esc(t)}">↩ จาก ${esc(t)}</div>` : ''; }
+function personCard(p, slotPos, slotSal, id, big, here){
+  const mis = p.hr && slotPos && p.hr !== slotPos;
+  return `<div class="card dropcard${big?' big':''}" draggable="true" data-key="${p.key}" style="--c:${rc(slotPos||p.tor)};border-left-color:var(--c)" tabindex="0" title="ลากเพื่อย้าย · วางการ์ดอื่นทับเพื่อสลับ">
+    ${p.band?`<span class="bandtag" data-b="${p.band}" title="Band ${p.band}">${p.band}</span>`:''}
+    <div class="p-name">${esc(p.name)}${p.emp?`<span class="p-id">${esc(p.emp)}</span>`:''}<span class="slot">${id}</span></div>
+    <div class="p-hdr"><span>TOR</span><span>HR</span></div>
+    <div class="p-role"><span class="torp">${esc(slotPos||p.tor||'-')}</span><span class="hrp${mis?' mis':''}" style="color:${rc(p.hr)}" title="${mis?'ตำแหน่ง HR ไม่ตรง TOR':'ตำแหน่ง HR'}">${mis?'≠ ':''}${esc(p.hr||'-')}</span></div>
+    <div class="p-sal"><span class="tor">${fmt(slotSal)}</span><span class="act${salCls(p, slotSal)}">${fmt(p.sum)}</span></div>
+    ${extras(p)}${hireLine(p)}${qualBadges(p)}${here==='POOL' ? fromLine(p) : ''}${movedNote(p, here) || '<div class="moved"></div>'}</div>`;
+}
+function hireLine(p){
+  if (!p.hire) return '';
+  const h = p.hire; const d = new Date(h.start+'T00:00:00'); const ds = isNaN(d) ? h.start : d.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'2-digit'});
+  return `<div class="hire${h.future?' fut':''}" title="${esc(h.remark||'')}"><span class="hp">${esc(h.proj||'-')}${h.team?' · '+esc(h.team):''}</span><span class="hs">→ ${esc(h.hint||'')}</span><span class="hd">${h.future?'ยังไม่เริ่ม · เริ่ม ':'เริ่ม '}${esc(ds)}</span></div>`;
+}
+function qualBadges(p){
+  if (!p.q) return '<div class="qb none">ไม่มีข้อมูลคุณสมบัติ</div>';
+  return `<div class="qb"><span class="${p.q.gcc?'on g':''}" title="GCC${p.q.gcc?' · '+esc(p.q.gcc):''}">GCC</span><span class="${p.q.ma?'on m':''}" title="MA MRT${p.q.ma?' · '+esc(p.q.ma):''}">MA</span><span class="${p.q.cm?'on c':''}" title="Construction MRT${p.q.cm?' · '+esc(p.q.cm):''}">CM</span></div>`;
+}
+function card(c, big){
+  const p = P(c);
+  if (torView) return `<div class="card tor${big?' big':''}" data-slot="${c.id}" style="--c:${rc(c.pos)};border-left-color:var(--c)">
+    <div class="p-name" style="color:var(--c)">${esc(c.pos)}<span class="vtag tor">TOR</span><span class="slot">${c.id}</span></div>
+    <div class="p-hdr"><span>ตำแหน่ง TOR</span><span>เงินเดือน TOR</span></div>
+    <div class="p-role"><span class="torp">${esc(c.pos)}</span><span class="hrp mono salcol">${fmt(c.sal)}</span></div>
+    <div class="p-sal"><span class="tor">ยังไม่มี Active</span><span class="none">-</span></div><div class="moved"></div></div>`;
+  if (!p) return `<div class="card vacant${big?' big':''} drop" data-slot="${c.id}" style="--c:${rc(c.pos)};border-left-color:var(--c)" title="วางการ์ดพนักงานที่นี่">
+    <div class="p-name">อัตราว่าง · ${esc(c.pos)}<span class="vtag">VACANT</span><span class="slot">${c.id}</span></div>
+    <div class="p-hdr"><span>TOR</span><span>HR</span></div>
+    <div class="p-role"><span class="torp">${esc(c.pos)}</span><span class="hrp">-</span></div>
+    <div class="p-sal"><span class="tor">${fmt(c.sal)}</span><span class="none">-</span></div>
+    <div class="p-extra base"><span class="none">-</span></div><div class="p-extra x20"><span class="none">-</span></div><div class="p-extra xsh"><span class="none">-</span></div><div class="moved"></div></div>`;
+  return personCard(p, c.pos, c.sal, c.id, big, c.id);
+}
+function cardList(cards){
+  const groups = [];
+  cards.forEach(c => { const g = groups.length && groups[groups.length-1].pos === c.pos ? groups[groups.length-1] : (groups.push({pos:c.pos, items:[]}), groups[groups.length-1]); g.items.push(c); });
+  return groups.map(g => `<div class="rlab"><i class="dot" style="background:${rc(g.pos)}"></i>${esc(g.pos)} · ${g.items.length}</div>${g.items.map(c => card(c)).join('')}`).join('');
+}
+function colHtml(col, tone, opts={}){
+  const heads = col.heads.length ? `<div class="col-heads">` + col.heads.map(h => `<div class="tier-lab"><i class="dot" style="background:${rc(h.cards[0].pos)}"></i>${esc(h.tier)} · ${uniq(h.cards.map(c=>c.pos)).join(' / ')} · ${h.cards.length}</div><div class="tier">${h.cards.map(c=>card(c)).join('')}</div>`).join('') + `</div>` : '';
+  const body = col.cards.length ? `<div class="col-body">${cardList(col.cards)}</div>` : '';
+  let subs = '';
+  if (col.subs.length){
+    subs = `<div class="subrow">` + col.subs.map(s =>
+      `<div class="col"><div class="col-head ${subTone(s.name)}"><div class="col-name">${esc(s.name)}</div>${subEn(s.name)?`<div class="col-en">${subEn(s.name)}</div>`:''}${pills(s.cards)}</div><div class="col-body">${cardList(s.cards)}</div></div>`
+    ).join('') + `</div>`;
+  }
+  const wide = col.subs.length > 1 || col.heads.some(h => h.cards.length > 1);
+  return `<div class="col${wide?' wide':''}"><div class="col-head ${tone}"><div class="col-name">${esc(col.name)}</div>${opts.en?`<div class="col-en">${esc(opts.en)}</div>`:''}${pills(allCards(col))}</div>${heads}${body}${subs}</div>`;
+}
+function branchHtml(br, i){
+  const cols = br.cols.map((c,j) => colHtml(c, TONES[(i+j)%TONES.length])).join('');
+  return `<div class="branch"><div class="branch-head"><div class="tier-lab">${esc(br.head.pos)} · 1</div><div class="tier">${card(br.head, true)}</div></div>
+    <div class="branch-row">${cols}</div></div>`;
+}
+function mgrHtml(m, hc){ return card(m, false); }
+function salarySummary(s){
+  const cards = structCards(s).filter(P);
+  const cmp = cards.filter(c => P(c).sum!=null && c.sal!=null);
+  const tor = cmp.reduce((a,c)=>a+c.sal,0), hr = cmp.reduce((a,c)=>a+P(c).sum,0);
+  const over = cmp.filter(c=>P(c).sum>c.sal).length, under = cmp.filter(c=>P(c).sum<c.sal).length, nohr = cards.length - cmp.length;
+  if (!cards.length) return '';
+  const d = hr - tor;
+  return `<div class="salbox">
+    <div class="kpi"><div class="l">TOR · บาท/เดือน</div><div class="v" style="font-size:17px">${num(tor)}</div><div class="s">เทียบได้ ${cmp.length} อัตรา</div></div>
+    <div class="kpi"><div class="l">รวมฝั่ง HR</div><div class="v" style="font-size:17px">${num(hr)}</div><div class="s">เงินเดือน + 20% + ค่ากะ</div></div>
+    <div class="kpi"><div class="l">ส่วนต่าง HR − TOR</div><div class="v" style="font-size:17px;color:${d>0?'var(--sal-over)':(d<0?'var(--sal-under)':'inherit')}">${d>0?'+':''}${num(d)}</div><div class="s">สูงกว่า ${over} · ต่ำกว่า ${under} · ไม่มีเงินเดือน HR ${nohr}</div></div>
+  </div>`;
+}
+let selected = 'ALL';
+let viewAll = (() => { try { return localStorage.getItem('rtb-org-viewall') === '1'; } catch(e){ return false; } })();
+function chartHtml(s){
+  let html = `<div class="chart" data-code="${s.code}">`;
+  const mgr = s.mgmt.filter(m => m.pos==='Manager' || m.pos==='Head of RTB');
+  const other = s.mgmt.filter(m => !(m.pos==='Manager' || m.pos==='Head of RTB'));
+  if (mgr.length){ html += `<div class="tier-lab">${esc(mgr[0].pos)} · ${mgr.length}</div><div class="tier">${mgr.map(m=>mgrHtml(m, s.hc)).join('')}</div>`; }
+  if (other.length){ html += `<div class="vline"></div><div class="tier-lab">${uniq(other.map(m=>m.pos)).join(' / ')} · ${other.length}</div><div class="tier">${other.map(c=>card(c,true)).join('')}</div>`; }
+  const hasMgmt = mgr.length || other.length;
+  const units = [];
+  s.branches.forEach((b,i) => units.push(branchHtml(b,i)));
+  s.cols.forEach((c,i) => units.push(colHtml(c, TONES[(i+s.branches.length)%TONES.length])));
+  if (s.support) units.push(colHtml(s.support, 't-brown', {en:'SAFETY & ADMIN'}));
+  if (units.length){
+    html += `<div class="branch-row${hasMgmt?'':' noline'}">${units.map(u => u.startsWith('<div class="branch"') ? u : `<div class="branch">${u}</div>`).join('')}</div>`;
+  }
+  return html + `</div>`;
+}
+function posSummary(cards){
+  const m = {}; cards.forEach(c => { const e = m[c.pos] || (m[c.pos] = {n:0,a:0}); e.n++; if (P(c)) e.a++; });
+  return Object.entries(m).sort((a,b)=>rank(a[0])-rank(b[0]));
+}
+function unitCard(name, sub, cards){
+  const rows = posSummary(cards); const a = cards.filter(P).length, v = cards.length - a;
+  return `<div class="ucard"><div class="u-h"><span class="u-n">${esc(name)}</span><span class="u-hc mono">${cards.length}</span></div>${sub?`<div class="u-s">${esc(sub)}</div>`:''}
+    <div class="u-rows">${rows.map(([r,e]) => `<div class="u-r"><i class="dot" style="background:${rc(r)}"></i><span>${esc(r)}</span><b class="mono">${e.n}</b>${e.n-e.a?`<em class="mono">−${e.n-e.a}</em>`:'<em class="mono z">·</em>'}</div>`).join('')}</div>
+    <div class="u-f"><span class="pill act"${a?'':' data-zero="1"'}>A ${a}</span><span class="pill vac"${v?'':' data-zero="1"'}>V ${v}</span></div></div>`;
+}
+function chartAllHtml(){
+  const ctr = DATA.find(s => s.code==='CTR');
+  const head = ctr?.mgmt.find(m => m.pos==='Head of RTB');
+  let html = `<div class="chart" data-code="ALL">`;
+  if (head) html += `<div class="tier-lab">Head of RTB · 1</div><div class="tier">${card(head, true)}</div>`;
+  html += `<div class="branch-row">`;
+  DATA.forEach(s => {
+    const cards = structCards(s), a = cards.filter(P).length, v = cards.length - a;
+    const mgrSlot = s.mgmt.find(m => m.pos==='Manager'); const mgr = mgrSlot ? P(mgrSlot) : null;
+    const others = s.mgmt.filter(m => m.pos!=='Manager' && m.pos!=='Head of RTB');
+    const units = [];
+    if (others.length) units.push(unitCard('ชั้นบริหาร', null, others));
+    s.branches.forEach(b => units.push(unitCard(b.dept || b.en || 'สายงาน', b.en && b.dept ? b.en : null, [b.head, ...b.cols.flatMap(allCards)])));
+    s.cols.forEach(c => units.push(unitCard(c.name, null, allCards(c))));
+    if (s.support) units.push(unitCard('Support', 'SAFETY & ADMIN', allCards(s.support)));
+    html += `<div class="branch allcol"><div class="scard" data-goto="${s.code}" title="เปิดผัง ${esc(s.name)}" tabindex="0" role="button">
+        <div class="sc-n">${esc(s.name)}</div><div class="sc-e">${esc(s.en)}</div>
+        <div class="sc-m">${mgrSlot ? (mgr ? `<span class="dot" style="background:${rc('Manager')}"></span>${esc(mgr.name)}` : `<span class="dot" style="background:var(--vacant)"></span><span style="color:var(--vacant)">Manager · ว่าง</span>`) : (s.code==='CTR' ? 'ขึ้นตรง Head of RTB' : '—')}</div>
+        <div class="col-stats"><span class="pill hc">HC ${s.hc}</span><span class="pill act"${a?'':' data-zero="1"'}>A ${a}</span><span class="pill vac"${v?'':' data-zero="1"'}>V ${v}</span></div></div>
+      <div class="ustack">${units.join('')}</div></div>`;
+  });
+  html += `</div></div>`;
+  return html;
+}
+function panelHead(s){
+  const cards = structCards(s), a = cards.filter(P).length, v = cards.length - a;
+  return `<div class="panel-head" id="ph-${s.code}"><h2>${esc(s.name)}</h2><span class="en">${esc(s.en)}</span><span class="pills"><span class="pill hc">HC ${s.hc}</span><span class="pill act">Active ${a}</span><span class="pill vac"${v?'':' data-zero="1"'}>Vacant ${v}</span></span></div>`;
+}
+function renderPanel(){
+  const p = document.getElementById('panel');
+  const zb = `<div class="zoombar"><span class="zl">ย่อ/ขยายผัง</span><button type="button" class="tbtn zb${zoom.mode==='fitw'?' on':''}" data-zoom="fitw">พอดีความกว้าง</button><button type="button" class="tbtn zb${zoom.mode==='fitall'?' on':''}" data-zoom="fitall">พอดีทั้งผัง</button><button type="button" class="tbtn zb${zoom.mode==='100'?' on':''}" data-zoom="100">100%</button><input type="range" id="zoomrange" min="25" max="100" step="1" value="${Math.round(zoom.scale*100)}" aria-label="ระดับย่อขยาย"><span class="zv" id="zoomval">${Math.round(zoom.scale*100)}%</span>
+    <span class="zsep"></span><button type="button" class="tbtn${viewAll?' on':''}" id="viewall">${viewAll?'✓ แสดงทุก Structure':'แสดงทุก Structure'}</button><span class="zhint">${viewAll?'ลากการ์ดข้าม Structure ได้ตรง ๆ':'ลากการ์ดไปชี้ค้างที่แท็บ Structure อื่นเพื่อสลับผังแล้ววาง'}</span></div>`;
+  let html = zb;
+  if (selected === 'ALL' && !viewAll){
+    const tot = DATA.reduce((a,s)=>a+s.hc,0), act = DATA.reduce((a,s)=>a+structCards(s).filter(P).length,0);
+    html += `<section class="sp" data-code="ALL"><div class="panel-head" id="ph-ALL"><h2>ผังรวม RTB · ทุก Structure</h2><span class="en">RAPID TRANSIT SYSTEM BUSINESS · ORGANIZATION OVERVIEW</span><span class="pills"><span class="pill hc">HC ${tot}</span><span class="pill act">Active ${act}</span><span class="pill vac"${tot-act?'':' data-zero="1"'}>Vacant ${tot-act}</span></span></div>
+      <div class="h2sub">Head of RTB → 10 Structure → หน่วยงาน · ตัวเลขข้างตำแหน่ง = อัตราตาม TOR, แดง = ขาด · คลิกการ์ด Structure เพื่อเปิดผังรายละเอียด</div>
+      <div class="zoomwrap"><div class="chart-holder">${chartAllHtml()}</div></div></section>`;
+    p.innerHTML = html;
+    p.querySelectorAll('.zb').forEach(b => b.addEventListener('click', () => { zoom.mode = b.dataset.zoom; saveZoom(); applyZoom(); }));
+    const r0 = document.getElementById('zoomrange'); if (r0) r0.addEventListener('input', () => { zoom.mode = 'manual'; zoom.scale = r0.value/100; saveZoom(); applyZoom(); });
+    document.getElementById('viewall')?.addEventListener('click', () => { viewAll = !viewAll; try{localStorage.setItem('rtb-org-viewall', viewAll?'1':'0');}catch(e){} if (viewAll) selected = 'ESM2'; renderGrid(); renderPanel(); });
+    p.querySelectorAll('[data-goto]').forEach(el => { const go = () => { selected = el.dataset.goto; renderGrid(); renderPanel(); document.getElementById('panel').scrollIntoView({behavior:'smooth',block:'start'}); }; el.addEventListener('click', go); el.addEventListener('keydown', e => { if (e.key==='Enter') go(); }); });
+    addMoveButtons(p); applyZoom(); return;
+  }
+  const list = viewAll ? DATA : DATA.filter(d => d.code === selected);
+  list.forEach((s, i) => { html += `<section class="sp${i?' sp-more':''}" data-code="${s.code}">${panelHead(s)}<div class="zoomwrap"><div class="chart-holder">${chartHtml(s)}</div></div>${salarySummary(s)}</section>`; });
+  p.innerHTML = html;
+  p.querySelectorAll('.zb').forEach(b => b.addEventListener('click', () => { zoom.mode = b.dataset.zoom; saveZoom(); applyZoom(); }));
+  const r = document.getElementById('zoomrange'); if (r) r.addEventListener('input', () => { zoom.mode = 'manual'; zoom.scale = r.value/100; saveZoom(); applyZoom(); });
+  applySearchHighlight(); addMoveButtons(p);
+  document.getElementById('viewall')?.addEventListener('click', () => { viewAll = !viewAll; try{localStorage.setItem('rtb-org-viewall', viewAll?'1':'0');}catch(e){} renderPanel(); });
+  applyZoom();
+}
+/* ---------- zoom / fit ---------- */
+const ZOOM_KEY = 'rtb-org-zoom-v1';
+let zoom = (() => { try { return JSON.parse(localStorage.getItem(ZOOM_KEY)) || {mode:'fitw', scale:1}; } catch(e){ return {mode:'fitw', scale:1}; } })();
+function saveZoom(){ try { localStorage.setItem(ZOOM_KEY, JSON.stringify(zoom)); } catch(e){} }
+function applyZoom(){
+  document.querySelectorAll('.zoomwrap').forEach(wrap => {
+    const ch = wrap.querySelector('.chart'); if (!ch) return;
+    ch.style.transform = 'none'; wrap.style.height = 'auto';
+    const cw = ch.scrollWidth, chh = ch.scrollHeight, pw = wrap.clientWidth;
+    let s = zoom.scale;
+    if (zoom.mode === 'fitw') s = Math.min(1, pw / cw);
+    else if (zoom.mode === 'fitall') { const avail = Math.max(300, window.innerHeight - 140); s = Math.min(1, pw / cw, avail / chh); }
+    else if (zoom.mode === '100') s = 1;
+    s = Math.max(0.25, Math.min(1, s)); if (!viewAll) zoom.scale = s;
+    ch.style.transformOrigin = 'top left';
+    ch.style.transform = `translateX(${Math.max(0, (pw - cw*s)/2)}px) scale(${s})`;
+    wrap.style.height = (chh*s) + 'px';
+    wrap.style.overflowX = s < 1 ? 'hidden' : 'auto';
+  });
+  const r = document.getElementById('zoomrange'), v = document.getElementById('zoomval'); if (r) r.value = Math.round(zoom.scale*100); if (v) v.textContent = zoom.mode==='manual'||zoom.mode==='100' ? Math.round(zoom.scale*100)+'%' : (viewAll ? 'อัตโนมัติ' : Math.round(zoom.scale*100)+'%');
+  document.querySelectorAll('.zb').forEach(b => b.classList.toggle('on', b.dataset.zoom === zoom.mode));
+}
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(applyZoom, 120); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => applyZoom());
+const SPLIT_UNITS = {ESM1:true, FM1:true};
+const UNIT_LABEL = {'MA CCTV':'CCTV','TOYOTATSUSHO':'Toyota Tsusho'};
+function roleRows(cards){
+  const m = {}; cards.forEach(c => { const e = m[c.pos] || (m[c.pos] = {n:0,a:0}); e.n++; if (P(c)) e.a++; });
+  return Object.entries(m).sort((a,b)=>rank(a[0])-rank(b[0])).map(([r,e]) => `<tr><td><span class="dot" style="background:${rc(r)}"></span>${esc(r)}</td><td>${e.n}</td><td${e.a?'':' class="dash"'}>${e.a||'-'}</td><td class="${e.n-e.a?'neg':'dash'}">${e.n-e.a?'-'+(e.n-e.a):'-'}</td></tr>`).join('');
+}
+function roleTableSplit(s){
+  const groups = [];
+  if (s.mgmt.length) groups.push({name:'ชั้นบริหาร', cards:s.mgmt});
+  s.branches.forEach(b => groups.push({name:b.dept||b.en||'สายงาน', cards:[b.head, ...b.cols.flatMap(allCards)]}));
+  s.cols.forEach(c => groups.push({name:UNIT_LABEL[c.name]||c.name, cards:allCards(c)}));
+  if (s.support) groups.push({name:'Support', cards:allCards(s.support)});
+  const all = structCards(s), ta = all.filter(P).length;
+  return `<table class="pt split"><tr><th>ตำแหน่ง</th><th>TOR</th><th>มี</th><th>ขาด</th></tr>${groups.map(g => { const a = g.cards.filter(P).length, v = g.cards.length - a; return `<tr class="grp"><td colspan="4"><span>${esc(g.name)}</span><small>HC ${g.cards.length} · A ${a}${v?` · <em>V ${v}</em>`:''}</small></td></tr>${roleRows(g.cards)}`; }).join('')}<tr class="sum"><td>รวม</td><td>${s.hc}</td><td>${ta}</td><td class="${s.hc-ta?'neg':'dash'}">${s.hc-ta?'-'+(s.hc-ta):'-'}</td></tr></table>`;
+}
+function roleTable(s){
+  if (SPLIT_UNITS[s.code]) return roleTableSplit(s);
+  const m = {};
+  structCards(s).forEach(c => { const e = m[c.pos] || (m[c.pos] = {n:0,a:0}); e.n++; if (P(c)) e.a++; });
+  const rows = Object.entries(m).sort((a,b)=>rank(a[0])-rank(b[0]));
+  const ta = rows.reduce((x,[,e])=>x+e.a,0);
+  return `<table class="pt"><tr><th>ตำแหน่ง</th><th>TOR</th><th>มี</th><th>ขาด</th></tr>${rows.map(([r,e]) => `<tr><td><span class="dot" style="background:${rc(r)}"></span>${esc(r)}</td><td>${e.n}</td><td${e.a?'':' class="dash"'}>${e.a||'-'}</td><td class="${e.n-e.a?'neg':'dash'}">${e.n-e.a?'-'+(e.n-e.a):'-'}</td></tr>`).join('')}<tr class="sum"><td>รวม</td><td>${s.hc}</td><td>${ta}</td><td class="${s.hc-ta?'neg':'dash'}">${s.hc-ta?'-'+(s.hc-ta):'-'}</td></tr></table>`;
+}
+function renderGrid(){
+  document.getElementById('grid').innerHTML = DATA.map(s => { const cs = structCards(s), a = cs.filter(P).length, pct = s.hc? Math.round(a/s.hc*100):0; return `<button class="ov${s.code===selected?' sel':''}" type="button" data-code="${s.code}">
+    <div class="ov-top"><div><div class="ov-name">${esc(s.name)}</div><div class="ov-en">${esc(s.en)}</div></div><div class="ov-hc">${s.hc}</div></div>
+    <div class="bar"><i style="width:${pct}%"></i></div>
+    <div class="ov-stats"><span class="pill act">Active ${a}</span><span class="pill vac"${s.hc-a?'':' data-zero="1"'}>Vacant ${s.hc-a}</span><span class="pct">${pct}% เต็มอัตรา</span></div>
+    ${roleTable(s)}</button>`; }).join('');
+  document.getElementById('tabs').innerHTML = `<button class="tab all${selected==='ALL'?' sel':''}" type="button" data-code="ALL">ผังรวม RTB<span class="n">ทุก Structure</span></button>` + DATA.map(s => { const a = structCards(s).filter(P).length; return `<button class="tab${s.code===selected?' sel':''}" type="button" data-code="${s.code}">${esc(s.name)}<span class="n">${a}/${s.hc}</span></button>`; }).join('');
+  document.querySelectorAll('.ov,.tab').forEach(el => el.addEventListener('click', () => { selected = el.dataset.code; if (selected==='ALL' && viewAll){ viewAll = false; try{localStorage.setItem('rtb-org-viewall','0');}catch(e){} } renderGrid(); if (!viewAll || selected==='ALL') renderPanel(); (document.getElementById('ph-'+selected) || document.getElementById('panel')).scrollIntoView({behavior:'smooth',block:'start'}); }));
+}
+function renderPool(){
+  const el = document.getElementById('pool'); el.hidden = torView; if (torView) return;
+  const ps = state.pool.map(k => PEOPLE[k]);
+  const hiresAll = ps.filter(p => p.hire), hires = hiresAll.filter(p => !p.hire.future), upcoming = hiresAll.filter(p => p.hire.future), rest = ps.filter(p => !p.hire);
+  const byRole = {}; rest.forEach(p => { (byRole[p.tor||'-'] ||= []).push(p); });
+  const roles = Object.keys(byRole).sort((a,b)=>rank(a)-rank(b));
+  const byProj = {}; hires.forEach(p => { const k = (p.hire.proj||'-')+(p.hire.team?' · '+p.hire.team:''); (byProj[k] ||= []).push(p); });
+  el.innerHTML = `<div class="pool-head"><h3>อัตรารอจัดสรร · ${ps.length} คน</h3><span class="pill act">ไม่นับใน TOR ${TOR_LOCK}</span>${hires.length?`<span class="pill hc">เริ่มงานแล้ว ${hires.length}</span>`:''}${upcoming.length?`<span class="pill act">รอเริ่มงาน ${upcoming.length}</span>`:''}${state.removed.length?`<button type="button" class="tbtn" id="restorebtn">คืนการ์ดที่ลบ (${state.removed.length})</button>`:''}</div>
+    <div class="h2sub">ลากการ์ดจากผังมาพักที่นี่ → ช่องเดิมกลับเป็น Vacant · ลากจากที่นี่ไปวางบนช่อง Vacant ใดก็ได้ในทุก Structure · ปุ่ม × มุมการ์ด = ลบออกจากรอจัดสรร (คืนได้ด้วยปุ่ม "คืนการ์ดที่ลบ")</div>
+    <div class="cards drop" data-slot="POOL">${hires.length ? `<div class="rlab hl">พนักงานใหม่จากตารางสรรหา · เริ่มงานแล้วถึงวันนี้ · ${hires.length} คน</div>` + Object.keys(byProj).sort().map(k => `<div class="rlab"><i class="dot" style="background:var(--brand)"></i>Project ${esc(k)} · ${byProj[k].length}</div>` + byProj[k].sort((a,b)=>a.hire.start.localeCompare(b.hire.start)).map(p => personCard(p, p.tor, p.sal_tor, 'POOL', false, 'POOL')).join('')).join('') + '' : ''}${upcoming.length ? `<div class="rlab hl fut">ผ่านสัมภาษณ์ · ยังไม่ถึงวันเริ่มงาน · ${upcoming.length} คน</div>` + upcoming.sort((a,b)=>a.hire.start.localeCompare(b.hire.start)).map(p => personCard(p, p.tor, p.sal_tor, 'POOL', false, 'POOL')).join('') : ''}${(hiresAll.length && rest.length)?`<div class="rlab hl">อื่น ๆ · ${rest.length} คน</div>`:''}${ps.length ? '' : ''}${ps.length ? roles.map(r => `<div class="rlab"><i class="dot" style="background:${rc(r)}"></i>${esc(r)} · ${byRole[r].length}</div>` + byRole[r].map(p => personCard(p, p.tor, p.sal_tor, 'POOL', false, 'POOL')).join('')).join('') : '<div class="empty">ว่าง — ลากการ์ดมาวางที่นี่</div>'}</div>`;
+}
+function renderKpis(){
+  const total = DATA.reduce((a,s)=>a+s.hc,0);
+  const act = DATA.reduce((a,s)=>a+structCards(s).filter(P).length,0);
+  document.getElementById('k-hc').textContent = total;
+  document.getElementById('k-act').textContent = act; document.getElementById('k-act-p').textContent = (act/total*100).toFixed(1)+'%';
+  document.getElementById('k-vac').textContent = total-act; document.getElementById('k-vac-p').textContent = ((total-act)/total*100).toFixed(1)+'%';
+  document.getElementById('k-pool').textContent = torView ? 0 : state.pool.length;
+  document.body.classList.toggle('torview', torView);
+  const h1 = document.querySelector('h1'); if (h1) h1.textContent = torView ? 'โครงอัตรากำลังตาม TOR · ยังไม่มี Active' : 'Organizational Chart · ทุกหน่วยงาน';
+  const tb = document.getElementById('torbtn'); if (tb) { tb.textContent = torView ? '✓ เฉพาะโครง TOR' : 'ดูเฉพาะโครง TOR'; tb.classList.toggle('on', torView); tb.hidden = TOR_ONLY; }
+  document.getElementById('lock-n').textContent = TOR_LOCK;
+  const ids = Object.keys(SLOTS);
+  const a = document.getElementById('alert');
+  if (total !== TOR_LOCK || ids.length !== TOR_LOCK) { a.hidden = false; a.textContent = `ผิดโครง TOR: พบ ${ids.length} ช่อง (ต้องเป็น ${TOR_LOCK}) — ห้ามเผยแพร่จนกว่าจะแก้`; } else a.hidden = true;
+  const units = DATA.reduce((x,s)=>x + s.branches.reduce((y,b)=>y+1+b.cols.length,0) + s.cols.length + (s.support?1:0),0);
+  document.getElementById('subline').textContent = `${DATA.length} Structure · ${units} หน่วยงานย่อย · TOR ล็อค ${TOR_LOCK} อัตรา · อัตรารอจัดสรร ${state.pool.length} คน ไม่นับใน ${TOR_LOCK}`;
+}
+function mismatchRows(){
+  const rows = [];
+  Object.keys(state.assign).forEach(id => { const k = state.assign[id]; if (!k) return; const p = PEOPLE[k], s = SLOTS[id];
+    if (p.hr && p.hr !== s.pos) rows.push({sc:s.sc, sname:s.sname, unit:s.unit, id, p, tor:s.pos, hr:p.hr, sal_tor:s.sal, sal_hr:p.sum}); });
+  state.pool.forEach(k => { const p = PEOPLE[k]; if (p.hr && p.tor && p.hr !== p.tor) rows.push({sc:'POOL', sname:'อัตรารอจัดสรร', unit:'-', id:'POOL', p, tor:p.tor, hr:p.hr, sal_tor:p.sal_tor, sal_hr:p.sum}); });
+  const order = DATA.map(s=>s.code).concat(['POOL']);
+  rows.forEach(r => { r.lvl = cmpLevel(r.tor, r.hr); r.diff = (r.sal_tor!=null && r.sal_hr!=null) ? r.sal_tor - r.sal_hr : null; });
+  return rows.sort((a,b) => order.indexOf(a.sc)-order.indexOf(b.sc) || rank(a.tor)-rank(b.tor));
+}
+function renderMismatch(){
+  const el = document.getElementById('mismatch'); el.hidden = torView; if (torView) return; const rows = mismatchRows();
+  const n = rows.length, hi = rows.filter(r=>r.lvl==='TOR สูงกว่า').length, lo = rows.filter(r=>r.lvl==='TOR ต่ำกว่า').length, na = rows.filter(r=>r.lvl==='-').length;
+  const diff = rows.reduce((a,r)=>a+(r.diff||0),0);
+  const trans = {}; rows.forEach(r => { const k = r.tor+'→'+r.hr; (trans[k] ||= {tor:r.tor, hr:r.hr, n:0}).n++; });
+  const tl = Object.values(trans).sort((a,b)=>b.n-a.n || rank(a.tor)-rank(b.tor));
+  const sgn = v => v==null ? '<span class="none">-</span>' : (v>0?'+':(v<0?'−':''))+num(Math.abs(v));
+  el.innerHTML = `<div class="pool-head"><h3>คนที่ตำแหน่งไม่ตรงกัน · TOR vs HR</h3><span class="pill vac"${n?'':' data-zero="1"'}>${n} คน</span></div>
+    <div class="h2sub">ตำแหน่งตามสัญญา (TOR) ของช่องที่คนนั้นอยู่ ไม่ตรงกับตำแหน่งที่ HR บันทึก · ฝั่ง HR = เงินเดือน + Additional 20% + ค่ากะ (ชี้ที่ตัวเลขเห็นรายละเอียด) · คำนวณจากผังปัจจุบัน</div>
+    <div class="salbox keep" style="margin-top:0">
+      <div class="kpi"><div class="l">ไม่ตรงกัน</div><div class="v" style="font-size:20px;color:var(--vacant)">${n}</div><div class="s">จาก ${Object.values(state.assign).filter(Boolean).length + state.pool.length} คน</div></div>
+      <div class="kpi"><div class="l">TOR สูงกว่า HR</div><div class="v" style="font-size:20px">${hi}</div><div class="s">จ้างตำแหน่งต่ำกว่าสัญญา</div></div>
+      <div class="kpi"><div class="l">TOR ต่ำกว่า HR</div><div class="v" style="font-size:20px">${lo}</div><div class="s">จ้างตำแหน่งสูงกว่าสัญญา</div></div>
+      <div class="kpi"><div class="l">เทียบระดับไม่ได้</div><div class="v" style="font-size:20px">${na}</div><div class="s">คนละสายงาน</div></div>
+      <div class="kpi salk"><div class="l">ส่วนต่างเงินเดือนรวม</div><div class="v" style="font-size:20px;color:${diff<0?'var(--sal-over)':(diff>0?'var(--sal-under)':'inherit')}">${sgn(diff)}</div><div class="s">TOR − รวมฝั่ง HR (เงินเดือน + 20% + ค่ากะ) · ลบ = HR จ่ายสูงกว่า TOR</div></div>
+    </div>
+    <div class="trans">${tl.map(t => `<span class="tr"><span class="chip" style="--c:${rc(t.tor)}">${esc(t.tor)}</span><span class="arr">→</span><span class="chip" style="--c:${rc(t.hr)}">${esc(t.hr)}</span><b>${t.n}</b></span>`).join('') || '<span class="h2sub">ไม่มี</span>'}</div>
+    <div class="tblwrap"><table class="mt"><thead><tr><th>Structure</th><th>หน่วยงาน</th><th>ชื่อ - นามสกุล</th><th>ตำแหน่ง TOR</th><th>ตำแหน่ง HR</th><th>ระดับ</th><th class="r salcol">เงินเดือน TOR</th><th class="r salcol">รวมฝั่ง HR</th><th class="r salcol">ส่วนต่าง (TOR − HR)</th></tr></thead><tbody>
+    ${rows.map(r => `<tr><td>${esc(r.sname)}</td><td>${esc(r.unit)}</td><td>${esc(r.p.name)}<span class="p-id">${esc(r.p.emp||'')}</span></td><td><span class="chip" style="--c:${rc(r.tor)}">${esc(r.tor)}</span></td><td><span class="chip" style="--c:${rc(r.hr)}">${esc(r.hr)}</span></td><td class="lv ${r.lvl==='TOR สูงกว่า'?'hi':(r.lvl==='TOR ต่ำกว่า'?'lo':'')}">${r.lvl}</td><td class="r mono salcol">${fmt(r.sal_tor)}</td><td class="r mono salcol" title="เงินเดือน ${num(r.p.sal_hr??0)} + 20% ${num(r.p.x20??0)} + ค่ากะ ${num(r.p.shift??0)}">${fmt(r.sal_hr)}</td><td class="r mono salcol ${r.diff<0?'over':(r.diff>0?'under':'')}">${sgn(r.diff)}</td></tr>`).join('')}
+    </tbody></table></div>`;
+}
+/* ---------- qualifications: GCC / MA MRT / Construction MRT ---------- */
+let qualFilter = null;   // set/combo (mutually exclusive main facet)
+let qf = {sc:null, pos:null, hrpos:null, exp:null, elec:null, kw:null, deg:null};   // extra facets
+const EXP_B = [['<1','น้อยกว่า 1 ปี',v=>typeof v==='number'&&v<1],['1-3','1–3 ปี',v=>typeof v==='number'&&v>=1&&v<=3],['4-7','4–7 ปี',v=>typeof v==='number'&&v>3&&v<=7],['8+','8 ปีขึ้นไป',v=>typeof v==='number'&&v>7],['ok','มี (ไม่ระบุปี)',v=>v==='ok'],['na','ไม่ระบุ',v=>v==null]];
+const DOC_B = [['มี','มีหลักฐาน',d=>d&&d.s==='มี'],['รอ','รอ/ยังไม่ครบ',d=>d&&d.s==='รอ'],['na','ไม่มี',d=>!d]];
+const DEG_ORDER = ['ป.โท','ป.ตรี','ปวส.','ปวช.','ม.6','ม.3','อื่น ๆ','ไม่ระบุ'];
+const degLv = d => d ? d.lv : 'ไม่ระบุ';
+const expTxt = v => v==null ? '—' : (v==='ok' ? 'มี' : (Number.isInteger(v) ? v : v.toFixed(1))+' ปี');
+const COMBOS = [
+  {key:'011', label:'MA อย่างเดียว'}, {key:'111', label:'GCC + MA'}, {key:'101', label:'GCC + CM'}, {key:'010', label:'MA + CM'},
+  {key:'110', label:'ครบทั้ง 3'}, {key:'100', label:'GCC อย่างเดียว'}, {key:'001', label:'CM อย่างเดียว'}, {key:'000', label:'นอกวงทั้งหมด'}
+];
+// bits: g m c  → key = `${g}${m}${c}`
+const comboKey = q => `${q.gcc?1:0}${q.ma?1:0}${q.cm?1:0}`;
+const COMBO_LABEL = {'111':'ครบทั้ง 3','110':'GCC + MA','101':'GCC + CM','011':'MA + CM','100':'GCC อย่างเดียว','010':'MA อย่างเดียว','001':'CM อย่างเดียว','000':'นอกวงทั้งหมด'};
+function activePeople(){
+  const out = [];
+  DATA.forEach(s => walkStruct(s, (c, unit) => { const p = P(c); if (p) out.push({p, sc:s.code, sname:s.name, unit, pos:c.pos, sal:c.sal, id:c.id}); }));
+  return out;
+}
+function renderQual(){
+  const el = document.getElementById('qual'); el.hidden = torView; if (torView) return;
+  const everyone = activePeople(); const all = everyone.filter(x => !qf.sc || x.sc===qf.sc);
+  const scCounts = {}; everyone.forEach(x => { if (x.p.q) scCounts[x.sc]=(scCounts[x.sc]||0)+1; });
+  const scBar = `<div class="scbar"><span class="zl">Structure</span><button type="button" class="tbtn sc${qf.sc?'':' on'}" data-sc="">ทั้ง RTB <b>${everyone.filter(x=>x.p.q).length}</b></button>${DATA.map(s => `<button type="button" class="tbtn sc${qf.sc===s.code?' on':''}" data-sc="${s.code}">${esc(s.name)} <b>${scCounts[s.code]||0}</b></button>`).join('')}</div>`;
+  const withQ = all.filter(x => x.p.q), noQ = all.length - withQ.length;
+  const n = withQ.length;
+  const cnt = k => withQ.filter(x => x.p.q[k]).length;
+  const g = cnt('gcc'), m = cnt('ma'), c = cnt('cm');
+  const combo = {}; withQ.forEach(x => { const k = comboKey(x.p.q); combo[k] = (combo[k]||0)+1; });
+  const gNotM = withQ.filter(x => x.p.q.gcc && !x.p.q.ma).length, cNotG = withQ.filter(x => x.p.q.cm && !x.p.q.gcc).length, both = combo['111']||0 + 0;
+  const gc = withQ.filter(x => x.p.q.gcc && x.p.q.cm).length;
+  const pct = v => n ? Math.round(v/n*100) : 0;
+  const sel = (kind, key) => qualFilter && qualFilter.kind===kind && qualFilter.key===key ? ' sel' : '';
+  const insights = [];
+  insights.push(gNotM===0 ? `<b>GCC ⊂ MA</b> ทุกคนที่ผ่านคุณสมบัติ GCC (${g} คน) ผ่าน MA MRT ด้วยเสมอ — GCC เป็นสับเซตของ MA MRT` : `<b>GCC ⊄ MA</b> มี ${gNotM} คนผ่าน GCC แต่ไม่ผ่าน MA MRT`);
+  insights.push(cNotG ? `<b>CM ⊄ GCC</b> Construction MRT ตัดขวาง — ${gc} คนอยู่ในทั้งคู่ แต่อีก ${cNotG} คนผ่าน Construction ทั้งที่ไม่ผ่าน GCC` : `<b>CM ⊂ GCC</b> ทุกคนที่ผ่าน Construction MRT ผ่าน GCC ด้วย`);
+  insights.push(`<b>MA ${pct(m)>=95?'≈ ทั้งหมด':pct(m)+'%'}</b> MA MRT ครอบ ${m}/${n} คน${n-m?` — อีก ${n-m} คนไม่ผ่าน MA MRT`:''}`);
+  if (noQ) insights.push(`<b>ไม่มีข้อมูล ${noQ} คน</b> ไม่พบในไฟล์รายชื่อ 9.2.26 จึงไม่นับในวง`);
+  const R = 92, cx1 = 150, cy1 = 120, cx2 = 250, cy2 = 120, cx3 = 200, cy3 = 205;
+  const svg = `<svg viewBox="0 0 400 320" class="venn" role="img" aria-label="วงคุณสมบัติ GCC / MA MRT / Construction MRT">
+    <g class="vc${sel('set','gcc')}" data-set="gcc"><circle cx="${cx1}" cy="${cy1}" r="${R}" style="--vc:#1E40AF"/><text x="${cx1-60}" y="${cy1-R-8}">GCC · ${g}</text></g>
+    <g class="vc${sel('set','ma')}" data-set="ma"><circle cx="${cx2}" cy="${cy2}" r="${R}" style="--vc:#0D9488"/><text x="${cx2+10}" y="${cy2-R-8}">MA MRT · ${m}</text></g>
+    <g class="vc${sel('set','cm')}" data-set="cm"><circle cx="${cx3}" cy="${cy3}" r="${R}" style="--vc:#EA580C"/><text x="${cx3-50}" y="${cy3+R+18}">CONSTRUCTION · ${c}</text></g>
+    <g class="vn">
+      <text x="${cx1-38}" y="${cy1-8}">${combo['100']||0}</text><text x="${cx1-38}" y="${cy1+8}" class="vl">GCC เท่านั้น</text>
+      <text x="${cx2+38}" y="${cy2-8}">${combo['010']||0}</text><text x="${cx2+38}" y="${cy2+8}" class="vl">MA เท่านั้น</text>
+      <text x="${cx3}" y="${cy3+48}">${combo['001']||0}</text><text x="${cx3}" y="${cy3+64}" class="vl">CM เท่านั้น</text>
+      <text x="200" y="88">${combo['110']||0}</text><text x="200" y="104" class="vl">GCC + MA</text>
+      <text x="${cx1-8}" y="${cy1+64}">${combo['101']||0}</text><text x="${cx1-8}" y="${cy1+80}" class="vl">GCC + CM</text>
+      <text x="${cx2+8}" y="${cy2+64}">${combo['011']||0}</text><text x="${cx2+8}" y="${cy2+80}" class="vl">MA + CM</text>
+      <text x="200" y="150" class="big">${combo['111']||0}</text><text x="200" y="166" class="vl">ครบทั้ง 3</text>
+    </g></svg>`;
+  const rows = Object.keys(COMBO_LABEL).sort((a,b)=>(combo[b]||0)-(combo[a]||0)).map(k => `<button type="button" class="qrow${sel('combo',k)}" data-combo="${k}"><span class="qdots"><i class="${k[0]==='1'?'on g':''}">GCC</i><i class="${k[1]==='1'?'on m':''}">MA</i><i class="${k[2]==='1'?'on c':''}">CM</i></span><span>${COMBO_LABEL[k]}</span><b>${combo[k]||0}</b><span class="qp">${pct(combo[k]||0)}%</span></button>`).join('');
+  // filtered list
+  let list = withQ;
+  if (qualFilter?.kind==='set') list = withQ.filter(x => x.p.q[qualFilter.key]);
+  if (qualFilter?.kind==='combo') list = withQ.filter(x => comboKey(x.p.q)===qualFilter.key);
+  if (qf.pos) list = list.filter(x => x.pos===qf.pos);
+  if (qf.hrpos) list = list.filter(x => (x.p.hr||'-')===qf.hrpos);
+  if (qf.exp) list = list.filter(x => EXP_B.find(b=>b[0]===qf.exp)[2](x.p.q.exp));
+  if (qf.elec) list = list.filter(x => DOC_B.find(b=>b[0]===qf.elec)[2](x.p.q.elec));
+  if (qf.kw) list = list.filter(x => DOC_B.find(b=>b[0]===qf.kw)[2](x.p.q.kw));
+  if (qf.deg) list = list.filter(x => degLv(x.p.q.deg)===qf.deg);
+  const parts = [];
+  if (qualFilter) parts.push(qualFilter.kind==='set' ? ({gcc:'ผ่าน GCC',ma:'ผ่าน MA MRT',cm:'ผ่าน Construction MRT'})[qualFilter.key] : COMBO_LABEL[qualFilter.key]);
+  if (qf.sc) parts.unshift(DATA.find(s=>s.code===qf.sc)?.name || qf.sc);
+  if (qf.pos) parts.push('ตำแหน่ง TOR '+qf.pos); if (qf.hrpos) parts.push('ตำแหน่ง HR '+qf.hrpos);
+  if (qf.exp) parts.push('ประสบการณ์ '+EXP_B.find(b=>b[0]===qf.exp)[1]); if (qf.elec) parts.push('ช่างไฟฟ้าอาคาร: '+DOC_B.find(b=>b[0]===qf.elec)[1]); if (qf.kw) parts.push('กว.: '+DOC_B.find(b=>b[0]===qf.kw)[1]); if (qf.deg) parts.push('วุฒิ '+qf.deg);
+  const anyF = parts.length > 0;
+  const title = (anyF ? parts.join(' · ') : 'ทุกคนที่มีข้อมูล') + ` · ${list.length}`;
+  // extra facet summaries (computed on the main-facet subset so numbers stay consistent with the venn)
+  const base = withQ.filter(x => (!qualFilter || (qualFilter.kind==='set' ? x.p.q[qualFilter.key] : comboKey(x.p.q)===qualFilter.key)));
+  const expNums = base.map(x=>x.p.q.exp).filter(v=>typeof v==='number');
+  const expAvg = expNums.length ? (expNums.reduce((a,b)=>a+b,0)/expNums.length) : null;
+  const sd = x => (x.sal!=null && x.p.sum!=null) ? x.sal - x.p.sum : null;
+  const sgnd = v => v==null ? '<span class="none">-</span>' : (v>0?'+':(v<0?'−':''))+num(Math.abs(v));
+  const cmpL = list.filter(x => sd(x)!=null), tTor = cmpL.reduce((a,x)=>a+x.sal,0), tHr = cmpL.reduce((a,x)=>a+x.p.sum,0), tD = tTor - tHr;
+  const salsum = `<div class="salbox" style="margin:10px 0 0">
+    <div class="kpi"><div class="l">รวมเงินเดือน TOR</div><div class="v" style="font-size:17px">${num(tTor)}</div><div class="s">ฐาน · เทียบได้ ${cmpL.length}/${list.length} คน</div></div>
+    <div class="kpi"><div class="l">รวมฝั่ง HR</div><div class="v" style="font-size:17px">${num(tHr)}</div><div class="s">เงินเดือน + 20% + ค่ากะ</div></div>
+    <div class="kpi"><div class="l">ส่วนต่าง TOR − HR</div><div class="v" style="font-size:17px;color:${tD<0?'var(--sal-over)':(tD>0?'var(--sal-under)':'inherit')}">${sgnd(tD)}</div><div class="s">ลบ = HR จ่ายสูงกว่า TOR · บวก = ต่ำกว่า TOR</div></div>
+  </div>`;
+  const facet = (title2, sub, key, buckets, getter, cur) => `<div class="fc"><div class="fc-h"><b>${title2}</b><span>${sub}</span></div><div class="fc-b">${buckets.map(([k,l,fn]) => { const n = base.filter(x=>fn(getter(x))).length; return `<button type="button" class="fb${cur===k?' sel':''}${n?'':' zero'}" data-facet="${key}" data-val="${k}"><span>${l}</span><b>${n}</b></button>`; }).join('')}</div></div>`;
+  const degCounts = {}; base.forEach(x => { const l = degLv(x.p.q.deg); degCounts[l]=(degCounts[l]||0)+1; });
+  const posCounts = {}, hrCounts = {}; base.forEach(x => { posCounts[x.pos]=(posCounts[x.pos]||0)+1; const hp = x.p.hr||'-'; hrCounts[hp]=(hrCounts[hp]||0)+1; });
+  const posBtns = (counts, key, cur) => Object.keys(counts).sort((a,b)=>rank(a)-rank(b)).map(p => `<button type="button" class="fb pb${cur===p?' sel':''}" data-facet="${key}" data-val="${esc(p)}" style="--c:${rc(p)}"><i></i><span>${esc(p)}</span><b>${counts[p]}</b></button>`).join('');
+  const facets = `<div class="facets facets-pos">
+    <div class="fc"><div class="fc-h"><b>ตำแหน่ง TOR</b><span>ตำแหน่งของช่องที่คนนั่งอยู่ในผัง · เลือกได้ 1 ตำแหน่ง</span></div><div class="fc-b">${posBtns(posCounts,'pos',qf.pos)}</div></div>
+    <div class="fc"><div class="fc-h"><b>ตำแหน่ง HR</b><span>ตำแหน่งที่ HR บันทึก</span></div><div class="fc-b">${posBtns(hrCounts,'hrpos',qf.hrpos)}</div></div>
+  </div><div class="facets">
+    ${facet('ประสบการณ์ทำงาน', expAvg!=null ? `เฉลี่ย ${expAvg.toFixed(1)} ปี · ระบุตัวเลข ${expNums.length} คน` : 'ไม่มีตัวเลข', 'exp', EXP_B, x=>x.p.q.exp, qf.exp)}
+    ${facet('ใบ CER ช่างไฟฟ้าอาคาร', 'ช่างไฟระดับ 1 · หลักฐาน = ไฟล์/เลขที่ใบ', 'elec', DOC_B, x=>x.p.q.elec, qf.elec)}
+    ${facet('ใบ กว.', 'ใบอนุญาตประกอบวิชาชีพวิศวกรรม', 'kw', DOC_B, x=>x.p.q.kw, qf.kw)}
+    <div class="fc"><div class="fc-h"><b>วุฒิการศึกษา</b><span>จำแนกระดับจากข้อความในไฟล์</span></div><div class="fc-b">${DEG_ORDER.filter(l=>degCounts[l]).map(l => `<button type="button" class="fb${qf.deg===l?' sel':''}" data-facet="deg" data-val="${l}"><span>${l}</span><b>${degCounts[l]}</b></button>`).join('')}</div></div>
+  </div>`;
+  const order = DATA.map(s=>s.code);
+  list = list.slice().sort((a,b) => order.indexOf(a.sc)-order.indexOf(b.sc) || rank(a.pos)-rank(b.pos) || a.p.name.localeCompare(b.p.name,'th'));
+  el.innerHTML = `<div class="pool-head"><h3>ทำงานหน่วยงานไหนได้บ้าง — GCC / MA MRT / Construction MRT · ประสบการณ์ · ใบรับรอง · วุฒิ</h3><span class="pill act">ฐาน: Active ${n} คน${qf.sc?` · ${esc(DATA.find(s=>s.code===qf.sc)?.name||'')}`:''}</span>${noQ?`<span class="pill vac">ไม่มีข้อมูล ${noQ}</span>`:''}</div>
+    ${scBar}
+    <div class="h2sub">นับจากช่อง "ตรง TOR Qualifie" ทั้ง 3 คอลัมน์ในไฟล์รายชื่อพนักงาน 9.2.26 · ค่าในช่อง = ตำแหน่งที่ผ่านคุณสมบัติ · คลิกวงหรือแถวเพื่อกรองรายชื่อด้านล่าง · คำนวณจากคนที่อยู่ในผังปัจจุบัน</div>
+    <div class="qwrap"><div class="qvenn">${svg}</div>
+      <div class="qside"><div class="qsets"><button type="button" class="qset${sel('set','gcc')}" data-set="gcc" style="--vc:#1E40AF"><b>${g}</b>GCC<small>${pct(g)}%</small></button><button type="button" class="qset${sel('set','ma')}" data-set="ma" style="--vc:#0D9488"><b>${m}</b>MA MRT<small>${pct(m)}%</small></button><button type="button" class="qset${sel('set','cm')}" data-set="cm" style="--vc:#EA580C"><b>${c}</b>Construction MRT<small>${pct(c)}%</small></button></div>
+      <div class="qrows">${rows}</div></div></div>
+    <div class="qins">${insights.map(t => `<div class="qi">${t}</div>`).join('')}</div>
+    ${facets}
+    <div class="pool-head" style="margin-top:14px"><h3 style="font-size:13px">รายชื่อ · ${title}</h3>${anyF?'<button type="button" class="tbtn" id="qclear">ล้างตัวกรอง</button>':''}<button type="button" class="tbtn" id="qcopy">คัดลอกรายชื่อที่กรองไว้</button></div>
+    ${salsum}
+    <div class="tblwrap" style="margin-top:10px"><table class="mt qtbl"><thead><tr><th>Structure</th><th>หน่วยงาน</th><th>ชื่อ - นามสกุล</th><th>ตำแหน่ง TOR</th><th>ตำแหน่ง HR</th><th>GCC</th><th>MA MRT</th><th>Construction MRT</th><th class="r salcol">เงินเดือน TOR</th><th class="r salcol">รวมฝั่ง HR</th><th class="r salcol">ส่วนต่าง (TOR − HR)</th><th class="r">ประสบการณ์</th><th>ช่างไฟฟ้าอาคาร</th><th>กว.</th><th>วุฒิ</th></tr></thead><tbody>
+    ${list.map(x => { const q = x.p.q; const doc = d => d ? `<span class="doc ${d.s==='มี'?'ok':'wait'}" title="${esc(d.n)}">${d.s==='มี'?'มี':'รอ'}</span>` : '<span class="qn">—</span>'; return `<tr><td>${esc(x.sname)}</td><td>${esc(x.unit)}</td><td>${esc(x.p.name)}<span class="p-id">${esc(x.p.emp||'')}</span></td><td><span class="chip" style="--c:${rc(x.pos)}">${esc(x.pos)}</span></td><td><span class="chip" style="--c:${rc(x.p.hr)}">${esc(x.p.hr||'-')}</span></td><td class="${q.gcc?'qy':'qn'}">${esc(q.gcc||'—')}</td><td class="${q.ma?'qy':'qn'}">${esc(q.ma||'—')}</td><td class="${q.cm?'qy':'qn'}">${esc(q.cm||'—')}</td><td class="r mono salcol">${fmt(x.sal)}</td><td class="r mono salcol" title="เงินเดือน ${num(x.p.sal_hr??0)} + 20% ${num(x.p.x20??0)} + ค่ากะ ${num(x.p.shift??0)}">${fmt(x.p.sum)}</td><td class="r mono salcol ${sd(x)==null?'qn':(sd(x)<0?'over':(sd(x)>0?'under':''))}">${sgnd(sd(x))}</td><td class="r mono ${q.exp==null?'qn':''}">${expTxt(q.exp)}</td><td>${doc(q.elec)}</td><td>${doc(q.kw)}</td><td class="degcell ${q.deg?'':'qn'}" title="${esc(q.deg?.raw||'')}">${q.deg?`<b>${esc(q.deg.lv)}</b> <small>${esc(q.deg.raw)}</small>`:'—'}</td></tr>`; }).join('')}
+    </tbody><tfoot><tr><td colspan="8"><b>รวม ${list.length} คน</b> <span class="qn">(เทียบเงินเดือนได้ ${cmpL.length})</span></td><td class="r mono salcol"><b>${num(tTor)}</b></td><td class="r mono salcol"><b>${num(tHr)}</b></td><td class="r mono salcol ${tD<0?'over':(tD>0?'under':'')}"><b>${sgnd(tD)}</b></td><td colspan="4"></td></tr></tfoot></table></div>`;
+  el.querySelectorAll('[data-facet]').forEach(b => b.addEventListener('click', () => { const f = b.dataset.facet, v = b.dataset.val; qf[f] = qf[f]===v ? null : v; renderQual(); }));
+  el.querySelectorAll('[data-sc]').forEach(b => b.addEventListener('click', () => { qf.sc = b.dataset.sc || null; qf.pos = null; qf.hrpos = null; renderQual(); }));
+  el.querySelectorAll('[data-set]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.set; qualFilter = (qualFilter?.kind==='set' && qualFilter.key===k) ? null : {kind:'set', key:k}; renderQual(); }));
+  el.querySelectorAll('[data-combo]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.combo; qualFilter = (qualFilter?.kind==='combo' && qualFilter.key===k) ? null : {kind:'combo', key:k}; renderQual(); }));
+  el.querySelector('#qclear')?.addEventListener('click', () => { qualFilter = null; qf = {sc:null, pos:null, hrpos:null, exp:null, elec:null, kw:null, deg:null}; renderQual(); });
+  el.querySelector('#qcopy')?.addEventListener('click', async e => { const hide = document.body.classList.contains('nosal'); const txt = list.map(x => `${x.p.name}\t${x.p.emp||''}\t${x.sname}\t${x.unit}\t${x.pos}\t${x.p.hr||''}\tGCC:${x.p.q.gcc||'-'}\tMA:${x.p.q.ma||'-'}\tCM:${x.p.q.cm||'-'}${hide?'':`\tTOR:${x.sal??'-'}\tHR:${x.p.sum??'-'}\tDiff:${sd(x)??'-'}`}\tExp:${expTxt(x.p.q.exp)}\tช่างไฟ:${x.p.q.elec?x.p.q.elec.s:'-'}\tกว.:${x.p.q.kw?x.p.q.kw.s:'-'}\tวุฒิ:${x.p.q.deg?x.p.q.deg.raw:'-'}`).join('\n'); try { await navigator.clipboard.writeText(txt); e.currentTarget.textContent = `คัดลอกแล้ว ${list.length} รายชื่อ`; } catch(err){ e.currentTarget.textContent = 'คัดลอกไม่ได้ในเบราว์เซอร์นี้'; } });
+}
+function renderPositions(){
+  const el = document.getElementById('positions'); const m = {};
+  DATA.forEach(s => structCards(s).forEach(c => { const e = m[c.pos] || (m[c.pos] = {n:0,a:0}); e.n++; if (P(c)) e.a++; }));
+  const rows = Object.entries(m).sort((a,b)=>rank(a[0])-rank(b[0]));
+  const tot = rows.reduce((x,[,e])=>x+e.n,0), act = rows.reduce((x,[,e])=>x+e.a,0);
+  const pc = (a,n) => n ? Math.round(a/n*100) : 0;
+  el.innerHTML = `<div class="pool-head"><h3>อัตรากำลังทั้ง RTB แยกตามตำแหน่ง TOR</h3><span class="pill hc">TOR ${tot}</span><span class="pill act">มีคน ${act}</span><span class="pill vac"${tot-act?'':' data-zero="1"'}>ขาด ${tot-act}</span><span class="pill act">${pc(act,tot)}% เต็มอัตรา</span></div>
+    <div class="h2sub">เรียงจากตำแหน่งสูงไปต่ำ · คำนวณจากผังปัจจุบัน</div>
+    <div class="tblwrap"><table class="mt postbl"><thead><tr><th>#</th><th>ตำแหน่ง TOR</th><th class="r">TOR</th><th class="r">มีคน</th><th class="r">ขาด</th><th class="r">เต็ม</th><th class="barcol">สัดส่วนที่มีคน</th></tr></thead><tbody>
+    ${rows.map(([r,e],i) => { const v = e.n-e.a; return `<tr><td class="mono dim">${i+1}</td><td><span class="dot" style="background:${rc(r)}"></span><b style="color:${rc(r)}">${esc(r)}</b></td><td class="r mono">${e.n}</td><td class="r mono">${e.a||'<span class="none">-</span>'}</td><td class="r mono ${v?'over':'dim'}">${v?'-'+v:'-'}</td><td class="r mono">${pc(e.a,e.n)}%</td><td class="barcol"><div class="bar"><i style="width:${pc(e.a,e.n)}%;background:${rc(r)}"></i></div></td></tr>`; }).join('')}
+    </tbody><tfoot><tr><td></td><td><b>รวมทั้ง RTB</b></td><td class="r mono"><b>${tot}</b></td><td class="r mono"><b>${act}</b></td><td class="r mono ${tot-act?'over':'dim'}"><b>${tot-act?'-'+(tot-act):'-'}</b></td><td class="r mono"><b>${pc(act,tot)}%</b></td><td class="barcol"><div class="bar"><i style="width:${pc(act,tot)}%"></i></div></td></tr></tfoot></table></div>`;
+}
+function renderAll(){ renderKpis(); renderPositions(); renderGrid(); renderPanel(); renderPool(); addMoveButtons(document.getElementById('pool')); addDeleteButtons(document.getElementById('pool')); document.getElementById('restorebtn')?.addEventListener('click', restoreRemoved); renderDock(); renderMismatch(); renderQual(); if (searchQ) renderSearch(); }
+
+/* ---------- drag & drop (delegated) ---------- */
+let dragKey = null;
+document.addEventListener('dragstart', e => {
+  const el = e.target.closest?.('[draggable="true"][data-key]'); if (!el) return;
+  dragKey = el.dataset.key; el.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', dragKey);
+  document.body.classList.add('is-dragging');
+});
+let hoverT = null;
+document.addEventListener('dragenter', e => {
+  if (!dragKey) return;
+  const t = e.target.closest?.('.tab, .ov'); clearTimeout(hoverT);
+  if (!t) return;
+  const code = t.dataset.code;
+  if (code === 'ALL' || (code === selected && !viewAll)) return;
+  t.classList.add('over');
+  hoverT = setTimeout(() => {
+    selected = code; renderGrid();
+    if (viewAll) { document.getElementById('ph-'+code)?.scrollIntoView({behavior:'smooth', block:'start'}); }
+    else { renderPanel(); document.getElementById('panel').scrollIntoView({behavior:'smooth', block:'start'}); }
+    setStatus(`สลับไป ${DATA.find(d=>d.code===code)?.name} — วางการ์ดลงช่องที่ต้องการ`);
+  }, 450);
+});
+document.addEventListener('dragleave', e => { const t = e.target.closest?.('.tab, .ov'); if (t && !t.contains(e.relatedTarget)) { t.classList.remove('over'); clearTimeout(hoverT); } });
+window.addEventListener('mouseup', () => { document.body.classList.remove('is-dragging'); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { dragKey = null; document.body.classList.remove('is-dragging'); document.querySelectorAll('.over,.dragging').forEach(x=>x.classList.remove('over','dragging')); } });
+document.addEventListener('dragend', e => { document.querySelectorAll('.dragging,.over').forEach(x=>x.classList.remove('dragging','over')); document.body.classList.remove('is-dragging'); dragKey = null; });
+document.addEventListener('dragover', e => { const t = e.target.closest?.('.dropcard, .drop'); if (!t || !dragKey || t.dataset.key === dragKey) return; e.preventDefault(); e.dataTransfer.dropEffect = 'move'; document.querySelectorAll('.over').forEach(x => x!==t && x.classList.remove('over')); t.classList.add('over'); });
+document.addEventListener('dragleave', e => { const t = e.target.closest?.('.dropcard, .drop'); if (t && !t.contains(e.relatedTarget)) t.classList.remove('over'); });
+document.addEventListener('drop', e => {
+  const t = e.target.closest?.('.dropcard, .drop'); if (!t) return; e.preventDefault(); e.stopPropagation();
+  const key = dragKey || e.dataTransfer.getData('text/plain'); if (!key) return;
+  dropOn(key, t);
+});
+/* keyboard fallback: select a card with Enter, then Enter on a vacant slot */
+let picked = null;
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const src = e.target.closest?.('[data-key]'); const dst = e.target.closest?.('.drop');
+  if (src && picked && src.dataset.key !== picked){ swapPersons(picked, src.dataset.key); picked = null; }
+  else if (src){ picked = src.dataset.key; setStatus(`เลือก ${PEOPLE[picked].name} แล้ว — กด Enter บนช่อง Vacant / กล่องรอจัดสรร เพื่อย้าย หรือบนการ์ดคนอื่นเพื่อสลับ`); }
+  else if (dst && picked){ movePerson(picked, dst.dataset.slot); picked = null; }
+});
+
+/* ---------- move picker + floating dock for the pool ---------- */
+let dockOpen = (() => { try { return localStorage.getItem('rtb-org-dock') === '1'; } catch(e){ return false; } })();
+function vacantSlots(){ const out = []; DATA.forEach(s => walkStruct(s, (c, unit) => { if (!P(c)) out.push({id:c.id, pos:c.pos, sal:c.sal, sc:s.code, sname:s.name, unit}); })); return out; }
+function addDeleteButtons(root){
+  root.querySelectorAll('.card[data-key]').forEach(el => {
+    if (el.querySelector('.del')) return;
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'del'; b.textContent = '×'; b.title = 'ลบการ์ดออกจากอัตรารอจัดสรร (คืนได้)'; b.setAttribute('aria-label','ลบการ์ด');
+    b.addEventListener('click', e => { e.stopPropagation(); removeFromPool(el.dataset.key); });
+    el.appendChild(b);
+  });
+}
+function addMoveButtons(root){
+  root.querySelectorAll('.card[data-key]').forEach(el => {
+    if (el.querySelector('.mv')) return;
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'mv'; b.textContent = 'ย้ายไป ▾'; b.title = 'เลือก Structure / ช่องว่างปลายทาง';
+    b.addEventListener('click', e => { e.stopPropagation(); openPicker(el.dataset.key); });
+    el.appendChild(b);
+  });
+}
+let pick = null;
+function openPicker(key, sc){
+  const p = PEOPLE[key]; if (!p) return; pick = {key, sc: sc || null};
+  const m = document.getElementById('picker'); m.hidden = false;
+  const loc = locOf(key); const want = p.tor || loc?.pos;
+  const vs = vacantSlots();
+  const bySc = {}; vs.forEach(v => { (bySc[v.sc] ||= []).push(v); });
+  const scList = DATA.map(s => { const v = bySc[s.code] || []; const same = v.filter(x => x.pos===want).length; return `<button type="button" class="pk-sc${pick.sc===s.code?' sel':''}${v.length?'':' zero'}" data-sc="${s.code}"><span>${esc(s.name)}</span><small>ว่าง ${v.length}${same?` · ตรงตำแหน่ง ${same}`:''}</small></button>`; }).join('');
+  let right = `<div class="pk-hint">เลือก Structure ทางซ้าย</div>`;
+  if (pick.sc){
+    const v = (bySc[pick.sc] || []).slice().sort((a,b) => (a.pos===want?0:1)-(b.pos===want?0:1) || rank(a.pos)-rank(b.pos));
+    const byUnit = {}; v.forEach(x => { (byUnit[x.unit] ||= []).push(x); });
+    right = v.length ? Object.keys(byUnit).map(u => `<div class="pk-u">${esc(u)}</div>` + byUnit[u].map(x => `<button type="button" class="pk-slot${x.pos===want?' match':''}" data-slot="${x.id}" style="--c:${rc(x.pos)}"><i></i><span>${esc(x.pos)}</span><small class="mono salcol">${fmt(x.sal)}</small>${x.pos===want?'<em>ตรงตำแหน่ง</em>':''}</button>`).join('')).join('') : `<div class="pk-hint">Structure นี้ไม่มีช่องว่าง</div>`;
+  }
+  m.innerHTML = `<div class="pk-box" role="dialog" aria-modal="true"><div class="pk-h"><div><b>ย้าย ${esc(p.name)}</b><small>${esc(want||'-')}${loc ? ' · ตอนนี้อยู่ที่ '+esc(loc.sname)+(loc.unit && loc.unit!=='-' ? ' · '+esc(loc.unit) : '') : ''}</small></div><button type="button" class="tbtn" id="pk-close">ปิด</button></div>
+    <div class="pk-body"><div class="pk-left">${scList}${loc && loc.sc!=='POOL' ? `<button type="button" class="pk-sc pool" data-slot="POOL"><span>อัตรารอจัดสรร</span><small>พักไว้ก่อน</small></button>`:''}</div><div class="pk-right">${right}</div></div></div>`;
+  m.querySelectorAll('.pk-sc[data-sc]').forEach(b => b.addEventListener('click', () => openPicker(key, b.dataset.sc)));
+  m.querySelectorAll('[data-slot]').forEach(b => b.addEventListener('click', () => { const t = b.dataset.slot; closePicker(); if (movePerson(key, t) && t!=='POOL') goTo(key); }));
+  m.querySelector('#pk-close').addEventListener('click', closePicker);
+  m.onclick = e => { if (e.target === m) closePicker(); };
+}
+function closePicker(){ const m = document.getElementById('picker'); m.hidden = true; m.innerHTML = ''; pick = null; }
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && pick) closePicker(); });
+function renderDock(){
+  const d = document.getElementById('dock'); const btn = document.getElementById('dockbtn');
+  if (btn){ btn.textContent = dockOpen ? '✓ ถาดรอจัดสรร' : 'ถาดรอจัดสรร'; btn.classList.toggle('on', dockOpen); }
+  document.body.classList.toggle('dock-open', dockOpen && !torView);
+  if (!dockOpen || torView){ d.hidden = true; d.innerHTML = ''; return; }
+  const ps = state.pool.map(k => PEOPLE[k]);
+  d.hidden = false;
+  d.innerHTML = `<div class="dk-h"><b>อัตรารอจัดสรร · ${ps.length}</b><span>ลากการ์ดขึ้นไปวางบนผังด้านบนได้โดยไม่ต้องเลื่อนหน้า · ลากการ์ดจากผังมาวางที่ถาดนี้ = พัก · ปุ่ม "ย้ายไป" เลือกปลายทางเอง</span><button type="button" class="tbtn" id="dockclose">ซ่อน</button></div>
+    <div class="dk-cards drop" data-slot="POOL">${ps.length ? ps.map(p => personCard(p, p.tor, p.sal_tor, 'POOL', false, 'POOL')).join('') : '<div class="empty">ว่าง</div>'}</div>`;
+  addMoveButtons(d); addDeleteButtons(d);
+  d.querySelector('#dockclose').addEventListener('click', () => { dockOpen = false; try{localStorage.setItem('rtb-org-dock','0');}catch(e){} renderDock(); });
+}
+
+/* ---------- search ---------- */
+let searchQ = '';
+const normS = s => String(s ?? '').toLowerCase().replace(/\s+/g,' ').trim();
+function locOf(key){ const id = whereIs(key); if (!id) return null; if (id === 'POOL') return {id, sc:'POOL', sname:'อัตรารอจัดสรร', unit:'-', pos:PEOPLE[key].tor}; const s = SLOTS[id]; return {id, sc:s.sc, sname:s.sname, unit:s.unit, pos:s.pos}; }
+function searchPeople(q){
+  q = normS(q); if (!q) return [];
+  const terms = q.split(' ');
+  return Object.values(PEOPLE).filter(p => !isRemoved(p.key)).map(p => ({p, loc:locOf(p.key)})).filter(({p, loc}) => {
+    const hay = normS([p.name, p.emp, p.hr, loc?.pos, loc?.sname, loc?.unit, p.band?('band '+p.band):'', p.hire?('พนักงานใหม่ '+(p.hire.proj||'')+' '+(p.hire.team||'')+' '+(p.hire.hint||'')):''].join(' '));
+    return terms.every(t => hay.includes(t));
+  }).sort((a,b) => a.p.name.localeCompare(b.p.name,'th')).slice(0, 40);
+}
+function renderSearch(){
+  const box = document.getElementById('sres'); const res = searchPeople(searchQ);
+  const q = document.getElementById('q');
+  if (!searchQ){ box.hidden = true; box.innerHTML = ''; applySearchHighlight(); return; }
+  box.hidden = false;
+  box.innerHTML = res.length ? `<div class="sr-h">${res.length} รายชื่อ${res.length===40?' (แสดง 40 แรก)':''} · Enter = ไปที่คนแรก</div>` + res.map(({p, loc}) => `<button type="button" class="sr" data-key="${p.key}"><span class="sr-n">${esc(p.name)}<span class="p-id">${esc(p.emp||'')}</span></span><span class="sr-w">${esc(loc?.sname||'')}${loc?.unit && loc.unit!=='-' ? ' · '+esc(loc.unit) : ''}</span><span class="sr-p"><span class="chip" style="--c:${rc(loc?.pos)}">${esc(loc?.pos||'-')}</span>${p.hr && p.hr!==loc?.pos ? `<span class="chip" style="--c:${rc(p.hr)}">HR ${esc(p.hr)}</span>` : ''}</span></button>`).join('') : `<div class="sr-h">ไม่พบ "${esc(searchQ)}"</div>`;
+  box.querySelectorAll('.sr').forEach(b => b.addEventListener('click', () => goTo(b.dataset.key)));
+  applySearchHighlight();
+}
+function applySearchHighlight(){
+  const keys = new Set(searchQ ? searchPeople(searchQ).map(r => r.p.key) : []);
+  document.body.classList.toggle('searching', keys.size > 0);
+  document.querySelectorAll('.card[data-key], .mgrcard[data-key]').forEach(el => el.classList.toggle('hit', keys.has(el.dataset.key)));
+}
+function goTo(key){
+  const loc = locOf(key); if (!loc) return;
+  if (loc.sc !== 'POOL'){ selected = loc.sc; renderGrid(); if (!viewAll) renderPanel(); }
+  applySearchHighlight();
+  requestAnimationFrame(() => {
+    const el = document.querySelector(`.card[data-key="${key}"], .mgrcard[data-key="${key}"]`); if (!el) return;
+    el.scrollIntoView({behavior:'smooth', block:'center', inline:'center'});
+    el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 2600);
+    setStatus(`${PEOPLE[key].name} — ${loc.sname}${loc.unit!=='-'?' · '+loc.unit:''} · ${loc.pos}`);
+  });
+}
+function initSearch(){
+  const q = document.getElementById('q'); let t;
+  q.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { searchQ = q.value; renderSearch(); }, 120); });
+  q.addEventListener('keydown', e => {
+    if (e.key === 'Enter'){ const r = searchPeople(searchQ); if (r.length) goTo(r[0].p.key); }
+    if (e.key === 'Escape'){ q.value = ''; searchQ = ''; renderSearch(); q.blur(); }
+  });
+  document.getElementById('qclr').addEventListener('click', () => { q.value = ''; searchQ = ''; renderSearch(); q.focus(); });
+  document.addEventListener('click', e => { if (!e.target.closest('.searchbar')) { const b = document.getElementById('sres'); if (b && !b.hidden && !searchQ) b.hidden = true; } });
+  document.addEventListener('keydown', e => { if ((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); q.focus(); q.select(); } if (e.key === '/' && !/input|textarea/i.test(document.activeElement?.tagName)) { e.preventDefault(); q.focus(); } });
+}
+
+/* ---------- init ---------- */
+function init(){
+  initSearch();
+  renderAll();
+  setStatus(load() ? `โหลดการโยกย้ายที่บันทึกในเบราว์เซอร์นี้ · ย้าย ${moves} ครั้ง` : 'ผังตามไฟล์ Excel · ยังไม่มีการโยกย้าย');
+  const present = new Set(); DATA.forEach(s => structCards(s).forEach(c => present.add(c.pos))); RAW.pool.forEach(p => present.add(p.tor));
+  const legendRoles = ROLE_ORDER.filter(r => present.has(r)).concat([...present].filter(r => !ROLE_ORDER.includes(r)));
+  document.getElementById('legend').innerHTML = `<span style="font-weight:600">สีประจำตำแหน่ง TOR (แถบซ้าย + ป้ายตำแหน่ง)</span>` + legendRoles.map(r => `<span class="chip" style="--c:${rc(r)}">${esc(r)}</span>`).join('') + `<span><i class="dot" style="background:var(--vacant)"></i>เส้นประ = Vacant</span><span style="color:var(--warn)">ตำแหน่ง HR สีเหลือง = ไม่ตรง TOR</span><span>ป้าย A–E = Band</span>`;
+  document.getElementById('salbtn').addEventListener('click', e => { const on = document.body.classList.toggle('nosal'); e.currentTarget.textContent = on ? 'แสดงเงินเดือน' : 'ซ่อนเงินเดือน'; e.currentTarget.classList.toggle('on', on); });
+  document.getElementById('resetbtn').addEventListener('click', resetAll);
+  document.getElementById('dockbtn').addEventListener('click', () => { dockOpen = !dockOpen; try{localStorage.setItem('rtb-org-dock', dockOpen?'1':'0');}catch(e){} renderDock(); });
+  document.getElementById('torbtn').addEventListener('click', () => { torView = !torView; try{localStorage.setItem('rtb-org-torview', torView?'1':'0');}catch(e){} renderAll(); });
+  document.getElementById('theme').addEventListener('click', () => {
+    const root = document.documentElement;
+    const dark = root.getAttribute('data-theme') === 'dark' || (!root.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
+    root.setAttribute('data-theme', dark ? 'light' : 'dark');
+  });
+}
+  if (ROLE !== 'full'){ document.body.classList.add('nosal','role-view'); }
+  init();
+  const sb = document.getElementById('salbtn'); if (sb) { if (ROLE !== 'full') sb.hidden = true; else sb.hidden = false; }
+  const rb = document.getElementById('rolebadge'); if (rb) rb.textContent = ROLE === 'full' ? 'สิทธิ์: เห็นเงินเดือน' : 'สิทธิ์: ไม่เห็นเงินเดือน';
+}
+
+/* ================= login gate ================= */
+const PUB = {"structures":[{"code":"CTR","name":"ส่วนกลาง","en":"CENTER","hc":4,"active":0,"locked":true,"mgmt":[{"id":"CTR-001","pos":"Head of RTB","sal":null,"tier":"Head of RTB","person":null}],"branches":[],"cols":[{"name":"ไม่ระบุหน่วยงาน","heads":[],"subs":[],"cards":[{"id":"CTR-003","pos":"PMO","sal":null,"person":null},{"id":"CTR-002","pos":"Engineer","sal":null,"person":null},{"id":"CTR-004","pos":"Officer","sal":null,"person":null}]}],"support":null},{"code":"PCS","name":"ควบคุมโครงการและสนับสนุน","en":"PROJECT CONTROL & SUPPORT","hc":4,"active":0,"locked":true,"mgmt":[],"branches":[],"cols":[{"name":"Advisor","heads":[],"subs":[],"cards":[{"id":"PCS-001","pos":"Technical Advisor","sal":null,"person":null}]},{"name":"Bidding","heads":[],"subs":[],"cards":[{"id":"PCS-002","pos":"Sr.Engineer","sal":null,"person":null}]},{"name":"Training","heads":[],"subs":[],"cards":[{"id":"PCS-003","pos":"Sr.Officer","sal":null,"person":null}]},{"name":"Material Control","heads":[],"subs":[],"cards":[{"id":"PCS-004","pos":"Sr.Technician","sal":null,"person":null}]}],"support":null},{"code":"ESM1","name":"ESM 1 · IRDN / MA CCTV / OCC","en":"ENGINEERING SERVICE & MAINTENANCE 1","hc":34,"active":0,"locked":true,"mgmt":[{"id":"ESM1-001","pos":"Manager","sal":null,"tier":"Manager","person":null}],"branches":[],"cols":[{"name":"IRDN","heads":[{"tier":"หัวหน้าหน่วย","cards":[{"id":"ESM1-002","pos":"Sr.Engineer","sal":null,"person":null}]}],"subs":[{"name":"ทีมช่าง","cards":[{"id":"ESM1-003","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM1-004","pos":"Technician","sal":null,"person":null},{"id":"ESM1-005","pos":"Technician","sal":null,"person":null},{"id":"ESM1-006","pos":"Technician","sal":null,"person":null},{"id":"ESM1-007","pos":"Technician","sal":null,"person":null},{"id":"ESM1-008","pos":"Technician","sal":null,"person":null},{"id":"ESM1-009","pos":"Technician","sal":null,"person":null},{"id":"ESM1-010","pos":"Technician","sal":null,"person":null}]}],"cards":[]},{"name":"MA CCTV","heads":[{"tier":"หัวหน้าหน่วย","cards":[{"id":"ESM1-011","pos":"Sr.Engineer","sal":null,"person":null}]}],"subs":[{"name":"ทีมช่าง","cards":[{"id":"ESM1-012","pos":"Engineer","sal":null,"person":null},{"id":"ESM1-013","pos":"Technician","sal":null,"person":null},{"id":"ESM1-014","pos":"Technician","sal":null,"person":null},{"id":"ESM1-015","pos":"Technician","sal":null,"person":null},{"id":"ESM1-016","pos":"Technician","sal":null,"person":null},{"id":"ESM1-017","pos":"Technician","sal":null,"person":null}]}],"cards":[]},{"name":"OCC","heads":[],"subs":[{"name":"สายสีเหลือง","cards":[{"id":"ESM1-018","pos":"Engineer","sal":null,"person":null},{"id":"ESM1-019","pos":"Officer","sal":null,"person":null},{"id":"ESM1-020","pos":"Officer","sal":null,"person":null},{"id":"ESM1-021","pos":"Officer","sal":null,"person":null}]},{"name":"สายสีชมพู","cards":[{"id":"ESM1-022","pos":"Engineer","sal":null,"person":null},{"id":"ESM1-023","pos":"Officer","sal":null,"person":null},{"id":"ESM1-024","pos":"Officer","sal":null,"person":null},{"id":"ESM1-025","pos":"Officer","sal":null,"person":null}]},{"name":"สายสีน้ำเงิน","cards":[{"id":"ESM1-026","pos":"Engineer","sal":null,"person":null},{"id":"ESM1-027","pos":"Officer","sal":null,"person":null},{"id":"ESM1-028","pos":"Officer","sal":null,"person":null},{"id":"ESM1-029","pos":"Officer","sal":null,"person":null}]},{"name":"สายสีม่วง","cards":[{"id":"ESM1-030","pos":"Engineer","sal":null,"person":null},{"id":"ESM1-031","pos":"Officer","sal":null,"person":null},{"id":"ESM1-032","pos":"Officer","sal":null,"person":null},{"id":"ESM1-033","pos":"Officer","sal":null,"person":null}]}],"cards":[]}],"support":{"name":"Support","heads":[],"subs":[],"cards":[{"id":"ESM1-034","pos":"Officer","sal":null,"person":null}]}},{"code":"ESM2","name":"ESM 2 · GCC","en":"ENGINEERING SERVICE & MAINTENANCE 2","hc":71,"active":0,"locked":true,"mgmt":[{"id":"ESM2-001","pos":"Manager","sal":null,"tier":"Manager","person":null}],"branches":[{"dept":"ปฏิบัติการและค่าสาธารณูปโภค","en":"Operations & Utilities","head":{"id":"ESM2-002","pos":"Assistant Manager","sal":null,"person":null},"cols":[{"name":"ค่าสาธารณูปโภค","heads":[{"tier":"หัวหน้าหน่วย","cards":[{"id":"ESM2-003","pos":"Engineer","sal":null,"person":null}]}],"subs":[{"name":"ทีม 1","cards":[{"id":"ESM2-004","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM2-005","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM2-006","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM2-007","pos":"Technician","sal":null,"person":null}]},{"name":"ทีม 2","cards":[{"id":"ESM2-008","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM2-009","pos":"Technician","sal":null,"person":null},{"id":"ESM2-010","pos":"Technician","sal":null,"person":null}]}],"cards":[]},{"name":"อาคารทิศใต้ · อาคารทิศเหนือ","heads":[{"tier":"หัวหน้าหน่วย","cards":[{"id":"ESM2-011","pos":"Engineer","sal":null,"person":null},{"id":"ESM2-012","pos":"Engineer","sal":null,"person":null}]}],"subs":[{"name":"กะเช้า","cards":[{"id":"ESM2-013","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM2-014","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM2-015","pos":"Technician","sal":null,"person":null},{"id":"ESM2-016","pos":"Technician","sal":null,"person":null},{"id":"ESM2-017","pos":"Technician","sal":null,"person":null},{"id":"ESM2-018","pos":"Technician","sal":null,"person":null}]},{"name":"กะบ่าย","cards":[{"id":"ESM2-019","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM2-020","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM2-021","pos":"Technician","sal":null,"person":null},{"id":"ESM2-022","pos":"Technician","sal":null,"person":null},{"id":"ESM2-023","pos":"Technician","sal":null,"person":null},{"id":"ESM2-024","pos":"Technician","sal":null,"person":null},{"id":"ESM2-025","pos":"Technician","sal":null,"person":null}]},{"name":"กะดึก","cards":[{"id":"ESM2-026","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM2-027","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM2-028","pos":"Technician","sal":null,"person":null},{"id":"ESM2-029","pos":"Technician","sal":null,"person":null},{"id":"ESM2-030","pos":"Technician","sal":null,"person":null},{"id":"ESM2-031","pos":"Technician","sal":null,"person":null},{"id":"ESM2-032","pos":"Technician","sal":null,"person":null}]}],"cards":[]}]},{"dept":"งานบำรุงรักษาเชิงป้องกัน","en":"Preventive Maintenance","head":{"id":"ESM2-033","pos":"Assistant Manager","sal":null,"person":null},"cols":[{"name":"งานบำรุงรักษาเชิงป้องกัน","heads":[],"subs":[{"name":"ทีม 1","cards":[{"id":"ESM2-034","pos":"Engineer","sal":null,"person":null},{"id":"ESM2-035","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM2-036","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM2-037","pos":"Technician","sal":null,"person":null},{"id":"ESM2-038","pos":"Technician","sal":null,"person":null},{"id":"ESM2-039","pos":"Technician","sal":null,"person":null}]},{"name":"ทีม 2","cards":[{"id":"ESM2-041","pos":"Engineer","sal":null,"person":null},{"id":"ESM2-040","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM2-042","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM2-043","pos":"Technician","sal":null,"person":null},{"id":"ESM2-044","pos":"Technician","sal":null,"person":null},{"id":"ESM2-045","pos":"Technician","sal":null,"person":null},{"id":"ESM2-046","pos":"Technician","sal":null,"person":null}]},{"name":"ทีม 3","cards":[{"id":"ESM2-047","pos":"Engineer","sal":null,"person":null},{"id":"ESM2-048","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM2-049","pos":"Technician","sal":null,"person":null},{"id":"ESM2-050","pos":"Technician","sal":null,"person":null},{"id":"ESM2-051","pos":"Technician","sal":null,"person":null}]}],"cards":[]}]},{"dept":"งานซ่อมแซมและแก้ไข","en":"Corrective Maintenance","head":{"id":"ESM2-052","pos":"Assistant Manager","sal":null,"person":null},"cols":[{"name":"งานซ่อมแซมและแก้ไข","heads":[],"subs":[{"name":"ทีม 1","cards":[{"id":"ESM2-053","pos":"Engineer","sal":null,"person":null},{"id":"ESM2-054","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM2-055","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM2-056","pos":"Technician","sal":null,"person":null},{"id":"ESM2-057","pos":"Technician","sal":null,"person":null},{"id":"ESM2-058","pos":"Technician","sal":null,"person":null}]},{"name":"ทีม 2","cards":[{"id":"ESM2-059","pos":"Engineer","sal":null,"person":null},{"id":"ESM2-060","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM2-061","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM2-062","pos":"Technician","sal":null,"person":null},{"id":"ESM2-063","pos":"Technician","sal":null,"person":null},{"id":"ESM2-064","pos":"Technician","sal":null,"person":null}]}],"cards":[]}]}],"cols":[],"support":{"name":"Support","heads":[],"subs":[],"cards":[{"id":"ESM2-065","pos":"Safety Officer","sal":null,"person":null},{"id":"ESM2-066","pos":"Officer","sal":null,"person":null},{"id":"ESM2-067","pos":"Officer","sal":null,"person":null},{"id":"ESM2-068","pos":"Technician","sal":null,"person":null},{"id":"ESM2-069","pos":"Technician","sal":null,"person":null},{"id":"ESM2-070","pos":"Technician","sal":null,"person":null},{"id":"ESM2-071","pos":"Technician","sal":null,"person":null}]}},{"code":"ESM3","name":"ESM 3 · IBL (ECS)","en":"ENGINEERING SERVICE & MAINTENANCE 3","hc":58,"active":0,"locked":true,"mgmt":[{"id":"ESM3-001","pos":"Manager","sal":null,"tier":"Manager","person":null},{"id":"ESM3-002","pos":"Engineering Specialist","sal":null,"tier":"Engineering Specialist","person":null}],"branches":[],"cols":[{"name":"IBL (ECS) UGN","heads":[{"tier":"หัวหน้าหน่วย","cards":[{"id":"ESM3-003","pos":"Sr.Engineer","sal":null,"person":null}]}],"subs":[{"name":"ทีม 1","cards":[{"id":"ESM3-004","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM3-005","pos":"Technician","sal":null,"person":null},{"id":"ESM3-006","pos":"Technician","sal":null,"person":null},{"id":"ESM3-007","pos":"Technician","sal":null,"person":null},{"id":"ESM3-008","pos":"Technician","sal":null,"person":null},{"id":"ESM3-009","pos":"Technician","sal":null,"person":null}]},{"name":"ทีม 2","cards":[{"id":"ESM3-010","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM3-011","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM3-012","pos":"Technician","sal":null,"person":null},{"id":"ESM3-013","pos":"Technician","sal":null,"person":null},{"id":"ESM3-014","pos":"Technician","sal":null,"person":null},{"id":"ESM3-015","pos":"Technician","sal":null,"person":null},{"id":"ESM3-016","pos":"Technician","sal":null,"person":null}]},{"name":"ทีม 3","cards":[{"id":"ESM3-017","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM3-018","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM3-019","pos":"Technician","sal":null,"person":null},{"id":"ESM3-020","pos":"Technician","sal":null,"person":null},{"id":"ESM3-021","pos":"Technician","sal":null,"person":null},{"id":"ESM3-022","pos":"Technician","sal":null,"person":null}]}],"cards":[]},{"name":"IBL (ECS) UGS","heads":[{"tier":"หัวหน้าหน่วย","cards":[{"id":"ESM3-023","pos":"Sr.Engineer","sal":null,"person":null}]},{"tier":"ผู้ช่วยหัวหน้าหน่วย","cards":[{"id":"ESM3-024","pos":"Engineer","sal":null,"person":null}]}],"subs":[{"name":"ทีม 1","cards":[{"id":"ESM3-025","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM3-026","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM3-027","pos":"Technician","sal":null,"person":null},{"id":"ESM3-028","pos":"Technician","sal":null,"person":null},{"id":"ESM3-029","pos":"Technician","sal":null,"person":null},{"id":"ESM3-030","pos":"Technician","sal":null,"person":null}]},{"name":"ทีม 2","cards":[{"id":"ESM3-031","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM3-032","pos":"Technician","sal":null,"person":null},{"id":"ESM3-033","pos":"Technician","sal":null,"person":null},{"id":"ESM3-034","pos":"Technician","sal":null,"person":null},{"id":"ESM3-035","pos":"Technician","sal":null,"person":null},{"id":"ESM3-036","pos":"Technician","sal":null,"person":null}]},{"name":"ทีม 3","cards":[{"id":"ESM3-037","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM3-038","pos":"Technician","sal":null,"person":null},{"id":"ESM3-039","pos":"Technician","sal":null,"person":null},{"id":"ESM3-040","pos":"Technician","sal":null,"person":null},{"id":"ESM3-041","pos":"Technician","sal":null,"person":null},{"id":"ESM3-042","pos":"Technician","sal":null,"person":null}]}],"cards":[]},{"name":"IBL (ECS) Depot","heads":[{"tier":"หัวหน้าหน่วย","cards":[{"id":"ESM3-043","pos":"Sr.Engineer","sal":null,"person":null}]}],"subs":[{"name":"ทีม 1","cards":[{"id":"ESM3-044","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM3-045","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM3-046","pos":"Technician","sal":null,"person":null},{"id":"ESM3-047","pos":"Technician","sal":null,"person":null},{"id":"ESM3-048","pos":"Technician","sal":null,"person":null},{"id":"ESM3-049","pos":"Technician","sal":null,"person":null}]},{"name":"ทีม 2","cards":[{"id":"ESM3-050","pos":"Technician","sal":null,"person":null},{"id":"ESM3-051","pos":"Technician","sal":null,"person":null},{"id":"ESM3-052","pos":"Technician","sal":null,"person":null},{"id":"ESM3-053","pos":"Technician","sal":null,"person":null}]},{"name":"ทีม 3","cards":[{"id":"ESM3-054","pos":"Technician","sal":null,"person":null},{"id":"ESM3-055","pos":"Technician","sal":null,"person":null},{"id":"ESM3-056","pos":"Technician","sal":null,"person":null},{"id":"ESM3-057","pos":"Technician","sal":null,"person":null}]}],"cards":[]}],"support":{"name":"Support","heads":[],"subs":[],"cards":[{"id":"ESM3-058","pos":"Officer","sal":null,"person":null}]}},{"code":"ESM4","name":"ESM 4 · IBL (FDA&FPSG / TVS)","en":"ENGINEERING SERVICE & MAINTENANCE 4","hc":72,"active":0,"locked":true,"mgmt":[{"id":"ESM4-001","pos":"Manager","sal":null,"tier":"Manager","person":null}],"branches":[],"cols":[{"name":"FDA&FPSG","heads":[{"tier":"หัวหน้าหน่วย","cards":[{"id":"ESM4-002","pos":"Engineering Specialist","sal":null,"person":null}]},{"tier":"ผู้ช่วยหัวหน้าหน่วย","cards":[{"id":"ESM4-003","pos":"Sr.Engineer","sal":null,"person":null},{"id":"ESM4-004","pos":"Sr.Engineer","sal":null,"person":null},{"id":"ESM4-005","pos":"Engineer","sal":null,"person":null}]}],"subs":[{"name":"ทีม 1","cards":[{"id":"ESM4-006","pos":"Technician","sal":null,"person":null},{"id":"ESM4-007","pos":"Technician","sal":null,"person":null},{"id":"ESM4-008","pos":"Technician","sal":null,"person":null},{"id":"ESM4-009","pos":"Technician","sal":null,"person":null},{"id":"ESM4-010","pos":"Technician","sal":null,"person":null},{"id":"ESM4-011","pos":"Technician","sal":null,"person":null},{"id":"ESM4-012","pos":"Technician","sal":null,"person":null},{"id":"ESM4-013","pos":"Technician","sal":null,"person":null}]},{"name":"ทีม 2","cards":[{"id":"ESM4-014","pos":"Technician","sal":null,"person":null},{"id":"ESM4-015","pos":"Technician","sal":null,"person":null},{"id":"ESM4-016","pos":"Technician","sal":null,"person":null},{"id":"ESM4-017","pos":"Technician","sal":null,"person":null},{"id":"ESM4-018","pos":"Technician","sal":null,"person":null},{"id":"ESM4-019","pos":"Technician","sal":null,"person":null},{"id":"ESM4-020","pos":"Technician","sal":null,"person":null},{"id":"ESM4-021","pos":"Technician","sal":null,"person":null}]},{"name":"ทีม 3","cards":[{"id":"ESM4-022","pos":"Technician","sal":null,"person":null},{"id":"ESM4-023","pos":"Technician","sal":null,"person":null},{"id":"ESM4-024","pos":"Technician","sal":null,"person":null},{"id":"ESM4-025","pos":"Technician","sal":null,"person":null},{"id":"ESM4-026","pos":"Technician","sal":null,"person":null},{"id":"ESM4-027","pos":"Technician","sal":null,"person":null},{"id":"ESM4-028","pos":"Technician","sal":null,"person":null},{"id":"ESM4-029","pos":"Technician","sal":null,"person":null}]}],"cards":[]},{"name":"TVS","heads":[{"tier":"หัวหน้าหน่วย","cards":[{"id":"ESM4-030","pos":"Sr.Engineer","sal":null,"person":null},{"id":"ESM4-031","pos":"Sr.Engineer","sal":null,"person":null}]},{"tier":"ผู้ช่วยหัวหน้าหน่วย","cards":[{"id":"ESM4-032","pos":"Engineer","sal":null,"person":null},{"id":"ESM4-033","pos":"Sr.Technician","sal":null,"person":null}]}],"subs":[{"name":"ทีม 1","cards":[{"id":"ESM4-037","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM4-034","pos":"Technician","sal":null,"person":null},{"id":"ESM4-035","pos":"Technician","sal":null,"person":null},{"id":"ESM4-036","pos":"Technician","sal":null,"person":null},{"id":"ESM4-038","pos":"Technician","sal":null,"person":null},{"id":"ESM4-039","pos":"Technician","sal":null,"person":null}]},{"name":"ทีม 2","cards":[{"id":"ESM4-040","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM4-041","pos":"Technician","sal":null,"person":null},{"id":"ESM4-042","pos":"Technician","sal":null,"person":null},{"id":"ESM4-043","pos":"Technician","sal":null,"person":null},{"id":"ESM4-044","pos":"Technician","sal":null,"person":null}]},{"name":"ทีม 3","cards":[{"id":"ESM4-045","pos":"Engineer","sal":null,"person":null},{"id":"ESM4-046","pos":"Technician","sal":null,"person":null},{"id":"ESM4-047","pos":"Technician","sal":null,"person":null},{"id":"ESM4-048","pos":"Technician","sal":null,"person":null},{"id":"ESM4-049","pos":"Technician","sal":null,"person":null}]},{"name":"ทีม 4","cards":[{"id":"ESM4-050","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM4-051","pos":"Technician","sal":null,"person":null},{"id":"ESM4-052","pos":"Technician","sal":null,"person":null},{"id":"ESM4-053","pos":"Technician","sal":null,"person":null},{"id":"ESM4-054","pos":"Technician","sal":null,"person":null}]},{"name":"ทีม 5","cards":[{"id":"ESM4-055","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM4-056","pos":"Technician","sal":null,"person":null},{"id":"ESM4-057","pos":"Technician","sal":null,"person":null},{"id":"ESM4-058","pos":"Technician","sal":null,"person":null},{"id":"ESM4-059","pos":"Technician","sal":null,"person":null}]}],"cards":[]}],"support":{"name":"Support","heads":[],"subs":[],"cards":[{"id":"ESM4-060","pos":"Engineer","sal":null,"person":null},{"id":"ESM4-061","pos":"Safety Officer","sal":null,"person":null},{"id":"ESM4-062","pos":"Safety Officer","sal":null,"person":null},{"id":"ESM4-063","pos":"Officer","sal":null,"person":null},{"id":"ESM4-064","pos":"Officer","sal":null,"person":null},{"id":"ESM4-065","pos":"Officer","sal":null,"person":null},{"id":"ESM4-066","pos":"Officer","sal":null,"person":null},{"id":"ESM4-067","pos":"Sr.Clerk","sal":null,"person":null},{"id":"ESM4-068","pos":"Technician","sal":null,"person":null},{"id":"ESM4-069","pos":"Technician","sal":null,"person":null},{"id":"ESM4-070","pos":"Technician","sal":null,"person":null},{"id":"ESM4-071","pos":"Technician","sal":null,"person":null},{"id":"ESM4-072","pos":"Technician","sal":null,"person":null}]}},{"code":"ESM5","name":"ESM 5 · BLE","en":"ENGINEERING SERVICE & MAINTENANCE 5","hc":80,"active":0,"locked":true,"mgmt":[{"id":"ESM5-001","pos":"Manager","sal":null,"tier":"Manager","person":null}],"branches":[],"cols":[{"name":"BLE (ECS)","heads":[{"tier":"หัวหน้าโครงการ","cards":[{"id":"ESM5-002","pos":"Engineering Specialist","sal":null,"person":null}]},{"tier":"หัวหน้าหน่วย","cards":[{"id":"ESM5-003","pos":"Sr.Engineer","sal":null,"person":null},{"id":"ESM5-004","pos":"Sr.Engineer","sal":null,"person":null}]}],"subs":[{"name":"ทีม 1","cards":[{"id":"ESM5-005","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM5-006","pos":"Technician","sal":null,"person":null},{"id":"ESM5-007","pos":"Technician","sal":null,"person":null},{"id":"ESM5-008","pos":"Technician","sal":null,"person":null},{"id":"ESM5-009","pos":"Technician","sal":null,"person":null},{"id":"ESM5-010","pos":"Technician","sal":null,"person":null},{"id":"ESM5-011","pos":"Technician","sal":null,"person":null},{"id":"ESM5-012","pos":"Technician","sal":null,"person":null},{"id":"ESM5-013","pos":"Technician","sal":null,"person":null},{"id":"ESM5-014","pos":"Technician","sal":null,"person":null},{"id":"ESM5-015","pos":"Technician","sal":null,"person":null},{"id":"ESM5-016","pos":"Technician","sal":null,"person":null}]},{"name":"ทีม 2","cards":[{"id":"ESM5-017","pos":"Engineer","sal":null,"person":null},{"id":"ESM5-018","pos":"Technician","sal":null,"person":null},{"id":"ESM5-019","pos":"Technician","sal":null,"person":null},{"id":"ESM5-020","pos":"Technician","sal":null,"person":null},{"id":"ESM5-021","pos":"Technician","sal":null,"person":null},{"id":"ESM5-022","pos":"Technician","sal":null,"person":null},{"id":"ESM5-023","pos":"Technician","sal":null,"person":null}]},{"name":"ทีม 3","cards":[{"id":"ESM5-024","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM5-025","pos":"Technician","sal":null,"person":null},{"id":"ESM5-026","pos":"Technician","sal":null,"person":null},{"id":"ESM5-027","pos":"Technician","sal":null,"person":null},{"id":"ESM5-028","pos":"Technician","sal":null,"person":null},{"id":"ESM5-029","pos":"Technician","sal":null,"person":null},{"id":"ESM5-030","pos":"Technician","sal":null,"person":null},{"id":"ESM5-031","pos":"Technician","sal":null,"person":null},{"id":"ESM5-032","pos":"Technician","sal":null,"person":null},{"id":"ESM5-033","pos":"Technician","sal":null,"person":null}]},{"name":"ทีม 4","cards":[{"id":"ESM5-034","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM5-035","pos":"Technician","sal":null,"person":null},{"id":"ESM5-036","pos":"Technician","sal":null,"person":null},{"id":"ESM5-037","pos":"Technician","sal":null,"person":null},{"id":"ESM5-038","pos":"Technician","sal":null,"person":null},{"id":"ESM5-039","pos":"Technician","sal":null,"person":null}]}],"cards":[]},{"name":"BLE (FDA)","heads":[{"tier":"หัวหน้าโครงการ","cards":[{"id":"ESM5-040","pos":"Engineering Specialist","sal":null,"person":null}]},{"tier":"หัวหน้าหน่วย","cards":[{"id":"ESM5-041","pos":"Sr.Engineer","sal":null,"person":null},{"id":"ESM5-042","pos":"Sr.Engineer","sal":null,"person":null}]}],"subs":[{"name":"ทีม 1","cards":[{"id":"ESM5-043","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM5-044","pos":"Technician","sal":null,"person":null},{"id":"ESM5-045","pos":"Technician","sal":null,"person":null},{"id":"ESM5-046","pos":"Technician","sal":null,"person":null},{"id":"ESM5-047","pos":"Technician","sal":null,"person":null},{"id":"ESM5-048","pos":"Technician","sal":null,"person":null},{"id":"ESM5-049","pos":"Technician","sal":null,"person":null}]},{"name":"ทีม 2","cards":[{"id":"ESM5-050","pos":"Engineer","sal":null,"person":null},{"id":"ESM5-051","pos":"Technician","sal":null,"person":null},{"id":"ESM5-052","pos":"Technician","sal":null,"person":null},{"id":"ESM5-053","pos":"Technician","sal":null,"person":null},{"id":"ESM5-054","pos":"Technician","sal":null,"person":null},{"id":"ESM5-055","pos":"Technician","sal":null,"person":null},{"id":"ESM5-056","pos":"Technician","sal":null,"person":null},{"id":"ESM5-057","pos":"Technician","sal":null,"person":null},{"id":"ESM5-058","pos":"Technician","sal":null,"person":null},{"id":"ESM5-059","pos":"Technician","sal":null,"person":null}]},{"name":"ทีม 3","cards":[{"id":"ESM5-060","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM5-061","pos":"Technician","sal":null,"person":null},{"id":"ESM5-062","pos":"Technician","sal":null,"person":null},{"id":"ESM5-063","pos":"Technician","sal":null,"person":null},{"id":"ESM5-064","pos":"Technician","sal":null,"person":null},{"id":"ESM5-065","pos":"Technician","sal":null,"person":null}]}],"cards":[]},{"name":"BLE (TVS)","heads":[{"tier":"หัวหน้าโครงการ","cards":[{"id":"ESM5-066","pos":"Sr.Engineer","sal":null,"person":null}]},{"tier":"หัวหน้าหน่วย","cards":[{"id":"ESM5-067","pos":"Sr.Engineer","sal":null,"person":null}]}],"subs":[{"name":"ทีม 1","cards":[{"id":"ESM5-068","pos":"Engineer","sal":null,"person":null},{"id":"ESM5-069","pos":"Technician","sal":null,"person":null},{"id":"ESM5-070","pos":"Technician","sal":null,"person":null},{"id":"ESM5-071","pos":"Technician","sal":null,"person":null},{"id":"ESM5-072","pos":"Technician","sal":null,"person":null}]},{"name":"ทีม 2","cards":[{"id":"ESM5-073","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM5-074","pos":"Technician","sal":null,"person":null},{"id":"ESM5-075","pos":"Technician","sal":null,"person":null},{"id":"ESM5-076","pos":"Technician","sal":null,"person":null}]}],"cards":[]}],"support":{"name":"Support","heads":[],"subs":[],"cards":[{"id":"ESM5-077","pos":"Safety Officer","sal":null,"person":null},{"id":"ESM5-078","pos":"Mat. Officer","sal":null,"person":null},{"id":"ESM5-079","pos":"Officer","sal":null,"person":null},{"id":"ESM5-080","pos":"Technician","sal":null,"person":null}]}},{"code":"ESM6","name":"ESM 6 · ORL STE","en":"ENGINEERING SERVICE & MAINTENANCE 6","hc":15,"active":0,"locked":true,"mgmt":[{"id":"ESM6-001","pos":"Manager","sal":null,"tier":"Sr.Engineer","person":null}],"branches":[],"cols":[{"name":"OR13, VS02, IVS08","heads":[],"subs":[],"cards":[{"id":"ESM6-002","pos":"Engineer","sal":null,"person":null},{"id":"ESM6-003","pos":"Technician","sal":null,"person":null}]},{"name":"OR14, VS03, IVS09, EEEN","heads":[],"subs":[],"cards":[{"id":"ESM6-004","pos":"Engineer","sal":null,"person":null}]},{"name":"OR15, IVS10, IVS11","heads":[],"subs":[],"cards":[{"id":"ESM6-005","pos":"Engineer","sal":null,"person":null},{"id":"ESM6-006","pos":"Technician","sal":null,"person":null}]},{"name":"OR16, IVS12","heads":[],"subs":[],"cards":[{"id":"ESM6-007","pos":"Engineer","sal":null,"person":null}]},{"name":"OR17, IVS13","heads":[],"subs":[],"cards":[{"id":"ESM6-008","pos":"Sr.Technician","sal":null,"person":null},{"id":"ESM6-009","pos":"Technician","sal":null,"person":null}]},{"name":"IVS14–IVS17, P&R, C&C, BSS2","heads":[],"subs":[],"cards":[{"id":"ESM6-010","pos":"Engineer","sal":null,"person":null},{"id":"ESM6-011","pos":"Technician","sal":null,"person":null}]},{"name":"Trackside, Depot","heads":[],"subs":[],"cards":[{"id":"ESM6-012","pos":"Engineer","sal":null,"person":null}]},{"name":"SCADA","heads":[],"subs":[],"cards":[{"id":"ESM6-013","pos":"Project Coordinator","sal":null,"person":null},{"id":"ESM6-014","pos":"Technician","sal":null,"person":null}]}],"support":{"name":"Support","heads":[],"subs":[],"cards":[{"id":"ESM6-015","pos":"Safety Officer","sal":null,"person":null}]}},{"code":"ESM7","name":"ESM 7 · Civil","en":"ENGINEERING SERVICE & MAINTENANCE 7 — CIVIL WORKS","hc":1,"active":0,"locked":true,"mgmt":[{"id":"ESM7-001","pos":"Manager","sal":null,"tier":"Manager","person":null}],"branches":[],"cols":[],"support":null},{"code":"FM1","name":"FM 1 · บริหารอาคาร","en":"FACILITY MANAGEMENT 1","hc":23,"active":0,"locked":true,"mgmt":[{"id":"FM1-001","pos":"Manager","sal":null,"tier":"Manager","person":null}],"branches":[],"cols":[{"name":"TOYOTATSUSHO","heads":[],"subs":[],"cards":[{"id":"FM1-002","pos":"Sr.Technician","sal":null,"person":null},{"id":"FM1-003","pos":"Sr.Technician (Building)","sal":null,"person":null},{"id":"FM1-004","pos":"Sr.Technician (Building)","sal":null,"person":null},{"id":"FM1-005","pos":"Technician","sal":null,"person":null},{"id":"FM1-006","pos":"Technician","sal":null,"person":null},{"id":"FM1-007","pos":"Technician (Building)","sal":null,"person":null},{"id":"FM1-008","pos":"Technician (Building)","sal":null,"person":null},{"id":"FM1-009","pos":"Technician (Building)","sal":null,"person":null}]},{"name":"MA CU","heads":[],"subs":[],"cards":[{"id":"FM1-010","pos":"Engineer","sal":null,"person":null},{"id":"FM1-011","pos":"Sr.Technician","sal":null,"person":null},{"id":"FM1-012","pos":"Technician","sal":null,"person":null},{"id":"FM1-013","pos":"Technician","sal":null,"person":null},{"id":"FM1-014","pos":"Technician","sal":null,"person":null},{"id":"FM1-015","pos":"Technician","sal":null,"person":null},{"id":"FM1-016","pos":"Technician","sal":null,"person":null},{"id":"FM1-017","pos":"Technician","sal":null,"person":null},{"id":"FM1-018","pos":"Technician","sal":null,"person":null},{"id":"FM1-019","pos":"Technician","sal":null,"person":null},{"id":"FM1-020","pos":"Technician","sal":null,"person":null},{"id":"FM1-021","pos":"Technician","sal":null,"person":null}]}],"support":{"name":"Support","heads":[],"subs":[],"cards":[{"id":"FM1-022","pos":"Officer","sal":null,"person":null},{"id":"FM1-023","pos":"Officer","sal":null,"person":null}]}}],"pool":[]};
+const SAL_ENC = {"salt": "XX+CJDBnKve9kJt82gSG2A==", "iv": "BHKXmrEVkJXILy6w", "iter": 200000, "ct": "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"};
+const AUTH = {"salt": "BnOB0dHad+5RjqwN", "full": "5ac4784ac2414d51b6d765732a6d05b5636515fa79335e52c0eb991629f9a093", "view": "3328b7fa9b6668af03da1acaebf4e0ff0828c5fcba67440222f72085b133df63"};
+const enc = new TextEncoder();
+async function sha256hex(s){ const b = await crypto.subtle.digest('SHA-256', enc.encode(s)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
+const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function decryptSal(pw){
+  const km = await crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey({name:'PBKDF2', salt:b64(SAL_ENC.salt), iterations:SAL_ENC.iter, hash:'SHA-256'}, km, {name:'AES-GCM', length:256}, false, ['decrypt']);
+  const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:b64(SAL_ENC.iv)}, key, b64(SAL_ENC.ct));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+function mergeSal(pub, sal){
+  const d = JSON.parse(JSON.stringify(pub));
+  const fix = c => { if (c.id in sal.slots) c.sal = sal.slots[c.id]; if (c.person){ const s = sal.people[c.person.k]; if (s) Object.assign(c.person, s); } };
+  d.structures.forEach(s => { s.mgmt.forEach(fix); s.branches.forEach(b => { fix(b.head); b.cols.forEach(c => { c.cards.forEach(fix); c.heads.forEach(h=>h.cards.forEach(fix)); c.subs.forEach(t=>t.cards.forEach(fix)); }); }); const w = c => { c.cards.forEach(fix); c.heads.forEach(h=>h.cards.forEach(fix)); c.subs.forEach(t=>t.cards.forEach(fix)); }; s.cols.forEach(w); if (s.support) w(s.support); });
+  d.pool.forEach(p => { const s = sal.people[p.k]; if (s) Object.assign(p, s); });
+  return d;
+}
+async function tryLogin(pw){
+  const h = await sha256hex(AUTH.salt + pw);
+  if (h === AUTH.full){ const sal = await decryptSal(pw); return {role:'full', data:mergeSal(PUB, sal)}; }
+  if (h === AUTH.view){ return {role:'view', data:JSON.parse(JSON.stringify(PUB))}; }
+  return null;
+}
+function showApp(){ document.getElementById('gate').hidden = true; document.getElementById('app').hidden = false; }
+function logout(){ try{ sessionStorage.removeItem('rtb-auth'); }catch(e){} location.reload(); }
+async function boot(){
+  const gate = document.getElementById('gate'), input = document.getElementById('pw'), err = document.getElementById('pwerr'), form = document.getElementById('pwform');
+  let saved = null; try { saved = sessionStorage.getItem('rtb-auth'); } catch(e){}
+  if (saved){ try { const r = await tryLogin(saved); if (r){ showApp(); startApp(Object.freeze(r.data), r.role); return; } } catch(e){} try{ sessionStorage.removeItem('rtb-auth'); }catch(e){} }
+  gate.hidden = false;
+  form.addEventListener('submit', async e => {
+    e.preventDefault(); err.textContent = ''; const pw = input.value.trim(); if (!pw) return;
+    form.classList.add('busy');
+    try { const r = await tryLogin(pw); if (!r){ err.textContent = 'รหัสผ่านไม่ถูกต้อง'; input.select(); form.classList.remove('busy'); return; }
+      try { sessionStorage.setItem('rtb-auth', pw); } catch(e){}
+      showApp(); startApp(Object.freeze(r.data), r.role);
+    } catch(ex){ err.textContent = 'เปิดข้อมูลไม่สำเร็จ (' + ex.message + ')'; form.classList.remove('busy'); }
+  });
+  setTimeout(() => input.focus(), 50);
+}
+boot();
+
+</script>
