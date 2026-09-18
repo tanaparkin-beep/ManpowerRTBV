@@ -1,0 +1,5 @@
+*.xlsx
+*.xls
+*.csv
+*.json
+.DS_Store
