@@ -510,11 +510,11 @@ const ROLE_COLOR = {
   'Project Coordinator':'#92400E','PMO':'#A16207',
   'Safety Officer':'#DC2626','Sr.Officer':'#0E7490','IT Officer':'#0891B2','Mat. Officer':'#4D7C0F','Officer':'#38BDF8','Sr.Clerk':'#64748B','Cust. Service':'#F472B6',
   'Sr.Technician':'#EA580C',
-  'Technician':'#0D9488','Asst.Technician':'#84CC16'
+  'Technician':'#0D9488'
 };
-const ROLE_ORDER = ['Head of RTB','Technical Advisor','Manager','Assistant Manager','Engineering Specialist','Sr.Engineer','PMO','Engineer','Project Coordinator','Safety Officer','Sr.Officer','IT Officer','Mat. Officer','Officer','Sr.Clerk','Sr.Technician','Technician','Asst.Technician'];
+const ROLE_ORDER = ['Head of RTB','Technical Advisor','Manager','Assistant Manager','Engineering Specialist','Sr.Engineer','PMO','Engineer','Project Coordinator','Safety Officer','Sr.Officer','IT Officer','Mat. Officer','Officer','Sr.Clerk','Sr.Technician','Technician'];
 const rc = r => ROLE_COLOR[r] || '#8C9A96';
-const LEVEL = {'Manager':1,'Engineering Specialist':2,'Sr.Engineer':3,'Engineer':4,'Sr.Technician':5,'Technician':7,'Asst.Technician':8};
+const LEVEL = {'Manager':1,'Engineering Specialist':2,'Sr.Engineer':3,'Engineer':4,'Sr.Technician':5,'Technician':7};
 const LEVEL_OFF = {'Sr.Officer':1,'Officer':2};
 function cmpLevel(tor, hr){
   const a = LEVEL[tor], b = LEVEL[hr]; if (a!=null && b!=null) return a<b ? 'TOR สูงกว่า' : (a>b ? 'TOR ต่ำกว่า' : 'เท่ากัน');
