@@ -436,6 +436,11 @@ body.is-dragging .drop{border-style:dashed;border-color:var(--brand)}
 .foot{margin-top:18px;font-size:11px;color:var(--ink-3)}
 @media (prefers-reduced-motion:no-preference){.ov,.tab{transition:border-color .12s,box-shadow .12s}}
 @media (max-width:640px){.kpi{min-width:80px;padding:6px 10px}.kpi .v{font-size:18px}}
+
+/* Restricted viewer: overview, charts and allocation pool only. */
+body.role-view #positions,body.role-view #mismatch,body.role-view #qual,
+body.role-view .searchbar,body.role-view #sres,body.role-view #legend,
+body.role-view .foot,body.role-view .top .kpis{display:none!important}
 </style>
 <div class="gate" id="gate" hidden>
   <form class="gate-box" id="pwform" autocomplete="off">
@@ -885,6 +890,7 @@ function mismatchRows(){
   return rows.sort((a,b) => order.indexOf(a.sc)-order.indexOf(b.sc) || rank(a.tor)-rank(b.tor));
 }
 function renderMismatch(){
+  if (ROLE !== 'full') { const section = document.getElementById('mismatch'); section.replaceChildren(); section.hidden = true; return; }
   const el = document.getElementById('mismatch'); el.hidden = torView; if (torView) return; const rows = mismatchRows();
   const n = rows.length, hi = rows.filter(r=>r.lvl==='TOR สูงกว่า').length, lo = rows.filter(r=>r.lvl==='TOR ต่ำกว่า').length, na = rows.filter(r=>r.lvl==='-').length;
   const diff = rows.reduce((a,r)=>a+(r.diff||0),0);
@@ -926,6 +932,7 @@ function activePeople(){
   return out;
 }
 function renderQual(){
+  if (ROLE !== 'full') { const section = document.getElementById('qual'); section.replaceChildren(); section.hidden = true; return; }
   const el = document.getElementById('qual'); el.hidden = torView; if (torView) return;
   const everyone = activePeople(); const all = everyone.filter(x => !qf.sc || x.sc===qf.sc);
   const scCounts = {}; everyone.forEach(x => { if (x.p.q) scCounts[x.sc]=(scCounts[x.sc]||0)+1; });
@@ -1026,6 +1033,7 @@ function renderQual(){
   el.querySelector('#qcopy')?.addEventListener('click', async e => { const hide = document.body.classList.contains('nosal'); const txt = list.map(x => `${x.p.name}\t${x.p.emp||''}${ROLE==='full'?`\t${x.p.proj||''}\t${x.p.rank??''}`:''}\t${x.sname}\t${x.unit}\t${x.pos}\t${x.p.hr||''}\tGCC:${x.p.q.gcc||'-'}\tMA:${x.p.q.ma||'-'}\tCM:${x.p.q.cm||'-'}${hide?'':`\tTOR:${x.sal??'-'}\tHR:${x.p.sum??'-'}\tDiff:${sd(x)??'-'}`}\tExp:${expTxt(x.p.q.exp)}\tช่างไฟ:${x.p.q.elec?x.p.q.elec.s:'-'}\tกว.:${x.p.q.kw?x.p.q.kw.s:'-'}\tวุฒิ:${x.p.q.deg?x.p.q.deg.raw:'-'}`).join('\n'); try { await navigator.clipboard.writeText(txt); e.currentTarget.textContent = `คัดลอกแล้ว ${list.length} รายชื่อ`; } catch(err){ e.currentTarget.textContent = 'คัดลอกไม่ได้ในเบราว์เซอร์นี้'; } });
 }
 function renderPositions(){
+  if (ROLE !== 'full') { const section = document.getElementById('positions'); section.replaceChildren(); section.hidden = true; return; }
   const el = document.getElementById('positions'); const m = {};
   DATA.forEach(s => structCards(s).forEach(c => { const e = m[c.pos] || (m[c.pos] = {n:0,a:0}); e.n++; if (P(c)) e.a++; }));
   const rows = Object.entries(m).sort((a,b)=>rank(a[0])-rank(b[0]));
@@ -1189,7 +1197,7 @@ function initSearch(){
 
 /* ---------- init ---------- */
 function init(){
-  initSearch();
+  if (ROLE === 'full') initSearch();
   renderAll();
   setStatus(load() ? `โหลดการโยกย้ายที่บันทึกในเบราว์เซอร์นี้ · ย้าย ${moves} ครั้ง` : 'ผังตามไฟล์ Excel · ยังไม่มีการโยกย้าย');
   const present = new Set(); DATA.forEach(s => structCards(s).forEach(c => present.add(c.pos))); RAW.pool.forEach(p => present.add(p.tor));
@@ -1208,7 +1216,7 @@ function init(){
   if (ROLE !== 'full'){ document.body.classList.add('nosal','role-view'); }
   init();
   const sb = document.getElementById('salbtn'); if (sb) { if (ROLE !== 'full') sb.hidden = true; else sb.hidden = false; }
-  const rb = document.getElementById('rolebadge'); if (rb) rb.textContent = ROLE === 'full' ? 'สิทธิ์: เห็นเงินเดือน' : 'สิทธิ์: ไม่เห็นเงินเดือน';
+  const rb = document.getElementById('rolebadge'); if (rb) rb.textContent = ROLE === 'full' ? 'สิทธิ์: เห็นเงินเดือน' : 'สิทธิ์: ภาพรวม · ผัง · อัตรารอจัดสรร';
 }
 
 /* ================= login gate ================= */
