@@ -1390,7 +1390,7 @@ function renderPositions(){
       const frame=st.needPlan || cards.reduce((o,c)=>{o[c.pos]=(o[c.pos]||0)+1;return o;},{});
       const budget={...frame,...BU_OVERRIDES[st.code]};
       const rate=role=>{const c=cards.find(c=>c.pos===role&&Number.isFinite(c.sal));return c?.sal||0;};
-      const pe=countsAsPE(st.code)?(searching||!st.needPlan?cards.reduce((a,c)=>a+(c.sal||0),0):Object.entries(frame).reduce((a,[r,n])=>a+n*rate(r),0)):0;
+      const pe=countsAsPE(st.code)?(searching||!st.needPlan||st.code!=='ESM5'?cards.reduce((a,c)=>a+(c.sal||0),0):Object.entries(frame).reduce((a,[r,n])=>a+n*rate(r),0)):0;
       let bu=cards.reduce((a,c)=>a+(P(c)?.sal_bu??c.sal_bu??0),0);
       if(!searching&&['ESM3','ESM5'].includes(st.code))bu=Object.entries(budget).reduce((a,[r,n])=>a+n*rate(r),0);
       const actual=cards.reduce((a,c)=>a+(displayedOccupant(c)?.sum||0),0);
