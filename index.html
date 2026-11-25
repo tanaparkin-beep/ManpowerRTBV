@@ -1399,15 +1399,18 @@ function renderPositions(){
     });
     return {projects,totals:[...totals,totals[1]-totals[2]]};
   })() : null;
-  const moneyCells = values => summaryMoney ? (values||[0,0,0,0]).map(v=>`<td class="r mono salcol">${num(v)}</td>`).join('') : '';
-  const moneyHeaders = summaryMoney ? ['เงิน PE','เงิน BU','เงิน Actual','BU − Actual'].map(label=>`<th class="r salcol">${label}</th>`).join('') : '';
+  const moneyCells = values => summaryMoney ? (values||[0,0,0]).slice(0,3).map(v=>`<td class="r mono salcol">${num(v)}</td>`).join('') : '';
+  const moneyHeaders = summaryMoney ? ['เงิน PE','เงิน BU','เงิน Actual'].map(label=>`<th class="r salcol">${label}</th>`).join('') : '';
+  const summaryProjectName = code => code==='CTR'?'ส่วนกลาง':code==='ESM2'?'ESM2 GCC':code;
   const summaryProjects = DATA.map(project => {
-    const entries = Object.values(projectCounts[project.code] || {});
-    if (!entries.some(e => e.t || e.n || e.b || e.a)) return '';
-    const sum = field => entries.reduce((n,e) => n+(e[field] || 0),0);
-    const actual = sum('a'), bu = sum('b'), fill = percent(actual,bu);
-    return `<tr><td>${esc(project.name)}</td><td class="r mono">${sum('t')}</td><td class="r mono">${sum('n')}</td><td class="r mono">${showBU(bu)}</td><td class="r mono"><b>${actual}</b></td><td class="r ${!searching && bu!==actual?'over':''}">${searching?'—':differenceLabel(bu-actual)}</td><td class="r mono">${fill===null?'—':fill+'%'}</td>${moneyCells(summaryMoney?.projects[project.code])}</tr>`;
+    const entries=Object.values(projectCounts[project.code]||{});
+    if(!entries.some(e=>e.t||e.n||e.b||e.a))return '';
+    const sum=field=>entries.reduce((n,e)=>n+(e[field]||0),0);
+    return `<tr><td>${esc(summaryProjectName(project.code))}</td><td class="r mono">${sum('n')}</td><td class="r mono">${showBU(sum('b'))}</td><td class="r mono">${sum('a')}</td>${moneyCells(summaryMoney?.projects[project.code])}</tr>`;
   }).join('');
+  const annualBudget=10542550.63;
+  const budgetDifference = value => `${value>annualBudget?'เกิน':value<annualBudget?'ต่ำกว่า':'เท่ากับ'} ${Math.abs(value-annualBudget).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
+  const budgetRows=summaryMoney&&!searching?`<tr class="salk"><td>Budget 2027</td><td class="r">—</td><td class="r">—</td><td class="r">—</td>${[0,1,2].map(()=>`<td class="r mono salcol">${annualBudget.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>`).join('')}</tr><tr class="salk"><td>เกิน / ต่ำกว่า Budget</td><td class="r">—</td><td class="r">—</td><td class="r">—</td>${summaryMoney.totals.slice(0,3).map(v=>`<td class="r mono salcol">${budgetDifference(v)}</td>`).join('')}</tr>`:'';
   el.innerHTML = `<div class="pool-head"><h3>สรุปอัตรากำลัง RTB</h3><span class="pill hc">TOR ${torTotal}</span><span class="pill hc">PE ${tot}</span><span class="pill hc">BU ${showBU(buTotal)}</span><span class="pill act">มีคน ${act}</span>${searching ? '' : `<span class="pill vac"${difference?'':' data-zero="1"'}>${differenceLabel(difference)}</span>`}
     ${percent(act,buTotal) === null ? '' : `<span class="pill act">${percent(act,buTotal)}% ของ BU</span>`}</div>
     <div class="h2sub">${normS(searchQ)?'เฉพาะรายชื่อที่ค้นหา · PE นับเฉพาะช่องของคนที่พบ · TOR นับช่องเดิมที่จับคู่ได้ · BU และส่วนต่างแสดงเมื่อดูยอดรวม · ':''}TOR = กรอบเดิม (ไม่รวมส่วนกลาง) · PE = ผังล่าสุด · BU ใช้ค่าตามภาพรวมทุก Structure · ${salaryScenario ? 'จำนวนคนในผังจำลอง (Actual ≤ TOR) แยกตามตำแหน่ง Actual เทียบ BU' : 'จำนวนคนยึดตำแหน่ง Actual เทียบ BU'} · เฉพาะคนในผัง ไม่รวมอัตรารอจัดสรร · ไม่ระบุ Actual แสดงแยกโดยไม่แทนด้วย TOR</div>
@@ -1418,7 +1421,8 @@ function renderPositions(){
       <div class="summary-metric">ส่วนต่างจาก BU<strong>${searching?'—':differenceLabel(difference)}</strong>${percent(act,buTotal)===null?'':percent(act,buTotal)+'% ของ BU'}</div>
       <div class="summary-metric">กรอบ TOR / PE<strong>${torTotal} / ${tot}</strong>อัตรา</div>
     </div>
-    <div class="tblwrap"><table class="mt summary-projects"><thead><tr><th>โครงการ</th><th class="r">TOR</th><th class="r">PE</th><th class="r">BU</th><th class="r">Actual</th><th class="r">เทียบ BU</th><th class="r">เต็มอัตรา</th>${moneyHeaders}</tr></thead><tbody>${summaryProjects}</tbody><tfoot><tr><td>รวม RTB</td><td class="r">${torTotal}</td><td class="r">${tot}</td><td class="r">${showBU(buTotal)}</td><td class="r">${act}</td><td class="r">${searching?'—':differenceLabel(difference)}</td><td class="r">${percent(act,buTotal)===null?'—':percent(act,buTotal)+'%'}</td>${moneyCells(summaryMoney?.totals)}</tr></tfoot></table></div>
+    <div class="h2sub">หน่วยเงิน: บาท/เดือน · PE / BU รวม Vacant · Actual รวมเงินเดือน + 20% + ค่ากะ</div>
+    <div class="tblwrap"><table class="mt summary-projects"><thead><tr><th>โครงการ</th><th class="r">PE คน</th><th class="r">BU คน</th><th class="r">Actual คน</th>${moneyHeaders}</tr></thead><tbody>${summaryProjects}</tbody><tfoot><tr><td>รวม RTB</td><td class="r">${tot}</td><td class="r">${showBU(buTotal)}</td><td class="r">${act}</td>${moneyCells(summaryMoney?.totals)}</tr>${budgetRows}</tfoot></table></div>
     <details class="summary-details"><summary>ดูรายละเอียดตำแหน่งในแต่ละโครงการ</summary>
     <div class="tblwrap"><table class="mt postbl"><thead><tr><th>โครงการ</th><th>#</th><th>ตำแหน่ง Actual</th><th class="r">TOR</th><th class="r">PE</th><th class="r">BU</th><th class="r">มีคน (Actual)</th><th class="r">ขาด / เกิน</th><th class="r">เต็ม</th><th class="barcol">สัดส่วนที่มีคน</th></tr></thead><tbody>
     ${DATA.map(project => {
